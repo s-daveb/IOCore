@@ -11,23 +11,32 @@ This is a simple C++20 project template using CMake for building and Catch2 v3 a
 
 ### Building the Project
 1. Clone the repository:
+    ```
     git clone https://github.com/your-username/your-project.git
+    ```
 
 2. Navigate to the project directory:
+    ```
     cd your-project
-
-3. Create a build directory:
-    mkdir build && cd build
-
-4. Configure and build the project using CMake:
-    cmake ..
-    make
+    ```
+3. Configure your build system:
+    ```bash
+    cmake -B debug -G Unix Makefiles
+    # or
+    cmake -B debug -G Ninja 
+    ```
+4. Invoke your build system
+    ```
+    cmake --build debug
+    ```
 
 ### Running Unit Tests
 
 1. After building the project, you can run the unit tests:
 
-    make ctest
+    ``` 
+    cmake --build --target ctest
+    ```
 
 2. This will execute the Catch2 test suite.
 
