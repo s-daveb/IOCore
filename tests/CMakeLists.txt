@@ -25,7 +25,7 @@ catch_discover_tests(test-runner)
 # bonus: add a custom ctest target to the build system, to run tests in the
 #        correct directory
 add_custom_target(ctest
-	command ctest -c $configuration --test-dir ./tests --output-on-failure
+	command ctest -c $configuration --test-dir . --output-on-failure
 )
 add_dependencies(ctest
 	test-runner
