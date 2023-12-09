@@ -37,8 +37,7 @@ This is a simple C++20 project template using CMake for building and Catch2 v3 a
     ``` 
     cmake --build --target ctest
     ```
-
-2. This will execute the Catch2 test suite.
+This will execute the Catch2 test suite.
 
 ## Project Structure
 - src/: Contains the application logic, defines a libray target
