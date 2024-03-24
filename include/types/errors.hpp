@@ -9,12 +9,12 @@
 
 #pragma once
 
-namespace core {
+namespace IOCore {
 using ErrorFlag = bool;
 
 const auto kSuccess = false;
 const auto kError = true;
-} // namespace core
+} // namespace IOCore
 
 // clang-format off
 // vim: set foldmethod=syntax textwidth=80 ts=8 sts=0 sw=8  noexpandtab ft=cpp.doxygen :

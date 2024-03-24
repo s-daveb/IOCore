@@ -14,12 +14,12 @@
 
 #include <filesystem>
 
-namespace core::paths {
+namespace IOCore::paths {
 auto get_home() -> std::filesystem::path;
 auto get_app_config_root() -> std::filesystem::path;
 
 auto expand_path(const std::filesystem::path &) -> std::filesystem::path;
-} // namespace core::paths
+} // namespace IOCore::paths
 
 // clang-format off
 // vim: set foldmethod=syntax textwidth=80 ts=8 sts=0 sw=8  noexpandtab ft=cpp.doxygen :

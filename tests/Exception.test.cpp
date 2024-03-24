@@ -26,38 +26,38 @@ void throw_wrapped_stl_exception()
 {
 	auto local = std::logic_error("This is a stack variable");
 
-	throw core::Exception(local);
+	throw IOCore::Exception(local);
 }
 
-BEGIN_TEST_SUITE("core::Exception")
+BEGIN_TEST_SUITE("IOCore::Exception")
 {
 	auto throw_an_exception = []() {
-		throw core::Exception("An error occurred!!");
+		throw IOCore::Exception("An error occurred!!");
 	};
 
-	TEST("core::Exception -  Can throw new exception type")
+	TEST("IOCore::Exception -  Can throw new exception type")
 	{
 		REQUIRE_THROWS(throw_an_exception());
 	}
 
-	TEST("core::Exception -  Can construct exception various ways")
+	TEST("IOCore::Exception -  Can construct exception various ways")
 	{
 		SECTION("1. Blank constructor")
 		{
-			core::Exception obj;
+			IOCore::Exception obj;
 		}
 		SECTION("2a. With cstring parameter")
 		{
-			core::Exception obj("Sample Error");
+			IOCore::Exception obj("Sample Error");
 		}
 		SECTION("2b. With std::string parameter")
 		{
-			core::Exception obj(std::string("Sample Error"));
+			IOCore::Exception obj(std::string("Sample Error"));
 		}
 
 		SECTION("3. With STL exception")
 		{
-			core::Exception obj(std::runtime_error("Sample Error"));
+			IOCore::Exception obj(std::runtime_error("Sample Error"));
 		}
 		SECTION("4. With destroyed stack")
 		{
@@ -77,17 +77,17 @@ BEGIN_TEST_SUITE("core::Exception")
 		}
 	}
 
-	TEST("core::Exception::what() - message reflects error")
+	TEST("IOCore::Exception::what() - message reflects error")
 	{
 
 		SECTION("1. Unspecified error or exception")
 		{
-			core::Exception obj;
+			IOCore::Exception obj;
 
 			REQUIRE_THAT(
 			    obj.what(),
 			    Match::ContainsSubstring(
-				core::Exception::kDefault_Error,
+				IOCore::Exception::kDefault_Error,
 				CaseSensitive::Yes
 			    )
 			);
@@ -96,8 +96,8 @@ BEGIN_TEST_SUITE("core::Exception")
 		SECTION("2. custom error or exception")
 		{
 			constexpr auto kTEST_MESSAGE = "This is a test.";
-			core::Exception test_object_one(kTEST_MESSAGE);
-			core::Exception test_object_two(
+			IOCore::Exception test_object_one(kTEST_MESSAGE);
+			IOCore::Exception test_object_two(
 			    std::logic_error("Makes no sense")
 			);
 			SECTION(" a: what() does not contain default message")
@@ -105,7 +105,7 @@ BEGIN_TEST_SUITE("core::Exception")
 				REQUIRE_THAT(
 				    test_object_one.what(),
 				    !Match::ContainsSubstring(
-					core::Exception::kDefault_Error
+					IOCore::Exception::kDefault_Error
 				    )
 				);
 			}
@@ -126,10 +126,10 @@ BEGIN_TEST_SUITE("core::Exception")
 		}
 	}
 
-	TEST("core::Exception::what() - contains stacktrace with Catch2 "
+	TEST("IOCore::Exception::what() - contains stacktrace with Catch2 "
 	     "runtime method names")
 	{
-		core::Exception test_object("Test");
+		IOCore::Exception test_object("Test");
 		SECTION(" a: what() does not contain default message")
 		{
 			REQUIRE_THAT(

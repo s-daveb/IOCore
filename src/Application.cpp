@@ -15,7 +15,7 @@
 #include <string_view>
 #include <vector>
 
-using namespace core;
+using namespace IOCore;
 
 void Application::init(int argc, c::const_string argv[],
                        c::const_string envp[]) {
@@ -26,7 +26,7 @@ void Application::init(int argc, c::const_string argv[],
                    problem + "parameter";
 
     auto fatal_exception = std::logic_error(message);
-    throw core::Exception(fatal_exception);
+    throw IOCore::Exception(fatal_exception);
   }
 
   this->read_arguments(argc, argv);

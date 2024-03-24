@@ -12,12 +12,12 @@
 #include <string>
 #include <unordered_map>
 
-namespace core {
+namespace IOCore {
 
 /// \brief Convenience for std::map objects where the key is always a string.
 template <typename TValueT>
 using Dictionary = std::unordered_map<std::string, TValueT>;
-} // namespace core
+} // namespace IOCore
 
 // clang-format off
 // vim: set foldmethod=syntax textwidth=80 ts=8 sts=0 sw=8  noexpandtab ft=cpp.doxygen :

@@ -19,7 +19,7 @@ PRIVATE
 
 # Set output directories for build targets
 set_target_properties(test-runner PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/build/tests"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests"
 )
 
 # extras: catch2 ctest integration.

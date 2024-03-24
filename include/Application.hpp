@@ -13,7 +13,7 @@
 
 #include "types.hpp"
 
-namespace core {
+namespace IOCore {
 class Application // NOLINT(readability-identifier-naming)
 {
 public:
@@ -49,7 +49,7 @@ protected:
   Dictionary<const std::string> environment_variables;
 };
 
-} // namespace core
+} // namespace IOCore
 
 // clang-format off
 // vim: set foldmethod=syntax foldminlines=10 textwidth=80 ts=4 sts=0 sw=4 noexpandtab ft=cpp.doxygen :

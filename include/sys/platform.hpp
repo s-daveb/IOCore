@@ -8,7 +8,7 @@
  */
 #pragma once
 
-namespace core {
+namespace IOCore {
 
 enum class Platform : int {
 	Unknown = 0b0000,
@@ -38,7 +38,7 @@ static const Platform kCurrentPlatform = Platform::FreeBSD;
 // I don't own any AIX, Solaris, HP-UX, or pure Darwin systems, sorry :)
 // To be added at a later date.
 
-} // namespace core::platform
+} // namespace IOCore::platform
 
 // clang-format off
 // vim: set foldmethod=syntax  textwidth=80 ts=8 sts=0 sw=8  noexpandtab ft=cpp.doxygen :

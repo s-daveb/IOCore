@@ -27,7 +27,7 @@
 		elemental::assert_impl(#condition, msg);                        \
 	}
 
-namespace core {
+namespace IOCore {
 
 class Exception : public std::exception {
     public:
@@ -76,7 +76,7 @@ void inline assert_impl(
 	assert_buffer << std::flush;
 	throw Exception(assert_buffer.str());
 }
-} // namespace core
+} // namespace IOCore
 
 // clang-format off
 // vim: set foldmethod=marker foldmarker=@{,@} textwidth=80 ts=8 sts=0 sw=8 noexpandtab ft=cpp.doxygen :

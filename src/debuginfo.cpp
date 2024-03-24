@@ -24,7 +24,7 @@
 #include <string>
 #include <vector>
 
-namespace core {
+namespace IOCore {
 namespace {
 
 // Extracts the mangled symbol from a string like <func_name+0x34>
@@ -137,7 +137,7 @@ void print_cmdline(int argc, const char* argv[])
 	std::cout << std::endl;
 }
 
-} // namespace core
+} // namespace IOCore
 
 // clang-format off
 // vim: set foldmethod=syntax foldminlines=10 textwidth=80 ts=8 sts=0 sw=8 noexpandtab ft=cpp.doxygen :

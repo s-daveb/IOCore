@@ -27,9 +27,9 @@ inline const char* SimulatedLaunch::env[] = {
 };
 } // namespace
 
-BEGIN_TEST_SUITE("core::Application")
+BEGIN_TEST_SUITE("IOCore::Application")
 {
-	using namespace core;
+	using namespace IOCore;
 	struct MockApplicationClass : public Application {
 		auto run() -> int override { return 0; }
 	};
@@ -40,7 +40,7 @@ BEGIN_TEST_SUITE("core::Application")
 		Application& app;
 	};
 
-	FIXTURE_TEST("core::Application - Init method populates "
+	FIXTURE_TEST("IOCore::Application - Init method populates "
 	             "Arguments list and Environment dictionary")
 	{
 		app.init(3, SimulatedLaunch::argv, SimulatedLaunch::env);

@@ -21,7 +21,7 @@
 #include <string>
 #include <utility>
 
-using core::Exception;
+using IOCore::Exception;
 
 constexpr unsigned kDEFAULT_STACKFRAMES_TO_STRIP = 3;
 
@@ -31,7 +31,7 @@ Exception::Exception(c::const_string error_message)
     : std::exception()
     , error_message(error_message)
     , what_message()
-    , stack_trace(core::generate_stacktrace(kDEFAULT_STACKFRAMES_TO_STRIP))
+    , stack_trace(IOCore::generate_stacktrace(kDEFAULT_STACKFRAMES_TO_STRIP))
     , inner_exception_ptr()
 {
 	build_what_message();
@@ -41,7 +41,7 @@ Exception::Exception(const std::string& error_message)
     : std::exception()
     , error_message(std::move(error_message))
     , what_message()
-    , stack_trace(core::generate_stacktrace(kDEFAULT_STACKFRAMES_TO_STRIP))
+    , stack_trace(IOCore::generate_stacktrace(kDEFAULT_STACKFRAMES_TO_STRIP))
     , inner_exception_ptr()
 {
 	build_what_message();
@@ -52,7 +52,7 @@ Exception::Exception(const std::exception& inner)
     , error_message(inner.what())
     , what_message()
     , inner_exception_ptr(std::make_exception_ptr(&inner))
-    , stack_trace(core::generate_stacktrace(kDEFAULT_STACKFRAMES_TO_STRIP))
+    , stack_trace(IOCore::generate_stacktrace(kDEFAULT_STACKFRAMES_TO_STRIP))
 {
 	build_what_message();
 }
@@ -94,7 +94,7 @@ void Exception::build_what_message(
 	std::stringstream buffer;
 
 	if (my_name.empty()) {
-		my_name = "core::Exception";
+		my_name = "IOCore::Exception";
 	};
 
 	std::string indented_stacktrace =
