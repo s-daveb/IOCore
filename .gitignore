@@ -132,6 +132,8 @@ Thumbs.db
 venv/
 env/
 
+*.bak
+
 .cache/
 compile_commands.json
 vim-debug
