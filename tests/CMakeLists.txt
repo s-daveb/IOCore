@@ -9,11 +9,9 @@ target_include_directories(test-runner PRIVATE
 	${CMAKE_SOURCE_DIR}/tests
 )
 
-# Link the 'engine' library and SDL dependencies
 target_link_libraries(test-runner
 PRIVATE
 	IOCore
-	${library_dep_libs}
 	Catch2::Catch2WithMain
 )
 
@@ -25,8 +23,8 @@ set_target_properties(test-runner PROPERTIES
 # extras: catch2 ctest integration.
 # add catch2's ctest cmake module and register the tests defined by mdml-tests
 # using catch_discover_tests
-include(ctest)
-include(catch)
+include(CTest)
+include(Catch)
 catch_discover_tests(test-runner)
 
 # bonus: add a custom ctest target to the build system, to run tests in the

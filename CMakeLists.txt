@@ -45,7 +45,7 @@ if (USE_CCACHE)
 	message(CHECK_START "Detecting cacche")
 
 	find_program(CCACHE_PATH ccache)
-	if(DEFINED CCACHE_PATH)
+	if(CCACHE_PATH)
   	  message(CHECK_PASS("found"))
   	  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ${CCACHE_PATH})
   	  set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ${CCACHE_PATH})
