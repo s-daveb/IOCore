@@ -1,28 +1,32 @@
 cmake_minimum_required(VERSION 3.26)
 
-# Prevent in-source builds
-if (CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR)
-    message(FATAL_ERROR "Source and build directories cannot be the same.")
-endif()
+# Additional paths to search for custom and third-party CMake modules
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
-	cmake_policy(SET CMP0135 NEW)
-endif()
+include(BuildProperties)
+
+prevent_in_source_build()
+disable_deprecated_features()
 
 # When this package is included as a subproject, there's no need to
-# build and run the unit-tests. Setting -DENABLE_TESTS to false could
-# speed up build time for pacakge maintainers
-if (NOT DEFINED PROJECT_NAME)
-	option(ENABLE_TESTS "Build and run unit tests" ON)
-else()
-	option(ENABLE_TESTS "Build and run unit tests" OFF)
-endif()
+# build and run the unit-tests.
+# Sets -DENABLE_TESTS to false by default if this is a third-party lib build
+# This check must appear before project()
+disable_tests_if_subproject()
 
-option(USE_SYSTEM_CATCH2
-	"Do not download & compile catch2 library for unit tests"
-	ON
+project(IOCore
+	VERSION 0.2
+	LANGUAGES C CXX
+	# HOMEPAGE_URL <URL>
+	DESCRIPTION "A framework for application management, file IO, etc"
 )
+include(CPM)
 
+option(USE_CCACHE
+	[=[Use ccache compiler cache to speed up builds.
+Enabled by default if ccache is found]=]
+ON
+)
 
 IF( NOT CMAKE_BUILD_TYPE )
   SET( CMAKE_BUILD_TYPE Debug )
@@ -37,23 +41,19 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Search for the code caching compiler wrapper, ccache and enable it
 # if found. This will speed up repeated builds.
-find_program(CCACHE_PATH ccache)
-if(CCACHE_PATH)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ${CCACHE_PATH})
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ${CCACHE_PATH})
-endif(CCACHE_PATH)
+if (USE_CCACHE)
+	message(CHECK_START "Detecting cacche")
 
-if (USE_SYSTEM_CATCH2)
-	message(CHECK_START "Detecting System Catch2 ")
-	find_package(Catch2 3 QUIET)
-
-	if(TARGET Catch2::Catch2)
-		message(CHECK_PASS "found target Catch2::Catch2")
-	else()
-		message(CHECK_FAIL "not found")
-		set(USE_SYSTEM_CATCH2 OFF)
-		message(STATUS "USE_SYSTEM_CATCH2=OFF")
+	find_program(CCACHE_PATH ccache)
+	if(DEFINED CCACHE_PATH)
+  	  message(CHECK_PASS("found"))
+  	  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ${CCACHE_PATH})
+  	  set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ${CCACHE_PATH})
 	endif()
+
+	list(APPEND CMAKE_MESSAGE_INDENT " ")
+  	message(STATUS "(set -DUSE_CCACHE=Off to disable)")
+	list(POP_BACK CMAKE_MESSAGE_INDENT)
 endif()
 
 
@@ -64,12 +64,7 @@ else()
 	option(USE_BOOST_STACKTRACE "Use Boost::stacktrace for stack traces" ON)
 	option(USE_EXECINFO_STACKTRACE "Use BSD/UNIX execinfo for stack traces" OFF)
 endif()
-project(IOCore
-	VERSION 0.1
-	LANGUAGES C CXX
-	# HOMEPAGE_URL <URL>
-	DESCRIPTION "A framework for application management, file IO, etc"
-)
+
 
 # enable compile_commands.json generation for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS On)
@@ -119,48 +114,44 @@ elseif((NOT USE_EXECINFO_STACKTRACE) AND USE_BOOST_STACKTRACE)
 endif()
 
 if (ENABLE_TESTS)
-	if (NOT USE_SYSTEM_CATCH2)
-		FetchContent_Declare(
-    	  Catch2
-	    	URL https://github.com/catchorg/Catch2/archive/refs/tags/v3.4.0.zip
-	    	URL_HASH MD5=c426e77d4ee0055410bc930182959ae5
-		)
-		FetchContent_MakeAvailable(Catch2)
-	else()
-		include_directories(${CATCH2_INCLUDE_DIRS})
-		link_directories(${CATCH2_LIBRARY_DIRS})
-	endif()
-	FetchContent_Declare(
-		FakeIt
-		URL https://github.com/eranpeer/FakeIt/archive/refs/tags/2.4.0.zip
-		URL_HASH MD5=72e4ce7f1c0de97074d2d5b517753286
-		FIND_PACKAGE_ARGS
+	CPMFindPackage(NAME Catch2
+		GITHUB_REPOSITORY catchorg/Catch2
+		VERSION 3.4.0
+		OPTIONS
+			"CATCH_DEVELOPMENT_BUILD OFF"
+			"CATCH_BUILD_TESTING OFF"
 	)
-	FetchContent_MakeAvailable(FakeIt)
+	CPMFindPackage(NAME FakeIt
+		GITHUB_REPOSITORY eranpeer/FakeIt
+		GIT_TAG 2.4.0
+		OPTIONS
+ 	   		"ENABLE_TESTING OFF"
+	)
 
 	if (TARGET Catch2)
 		set_target_properties(Catch2 PROPERTIES
 			CXX_STANDARD 20
 		)
-	endif()
-
-	if (TARGET Catch2WithMain)
+	elseif (TARGET Catch2WithMain)
 		set_target_properties(Catch2WithMain PROPERTIES
- 		       	CXX_STANDARD 20
+ 		    	CXX_STANDARD 20
 		)
 	endif()
-	list(APPEND cmake_module_path ${Catch2_source_dir}/extras)
+
+	if (Catch2_ADDED STREQUAL "YES")
+		list(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/extras)
+	else()
+		list(APPEND CMAKE_MODULE_PATH ${Catch2_DIR})
+	endif()
 endif()
 
-set(ARTIFACT_DIRECTORY ${CMAKE_BINARY_DIR}/out)
-
 # Set output directories for build targets
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${ARTIFACT_DIRECTORY}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${ARTIFACT_DIRECTORY}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${ARTIFACT_DIRECTORY}/bin)
+set(ARTIFACT_DIR "${CMAKE_BINARY_DIR}/out")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${ARTIFACT_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${ARTIFACT_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${ARTIFACT_DIR}/bin)
 
 # Include directories
-#include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # Example: Add a target to copy application resource files to the build dir
@@ -177,4 +168,4 @@ if(ENABLE_TESTS)
 endif()
 
 
-# vim: ts=2 sw=2 noet foldmethod=indent :
+# vim: ts=4 sw=4 noet foldmethod=indent :
