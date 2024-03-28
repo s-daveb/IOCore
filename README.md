@@ -1,7 +1,10 @@
 
-# IOCore: A C++20 Library
+# IOCore: A C++20 Application Framework Library 
 
-IOCore is a comprehensive C++20 library designed to simplify common programming tasks. It features advanced argument parsing functions, a custom exception class that captures stack traces at the point of throw, and a set of convenience macros for writing unit tests, among other utilities. The library leverages modern C++20 features and best practices to provide a robust foundation for software development.
+IOCore is a comprehensive C++20 library designed to simplify common programming tasks.
+
+It features advanced argument parsing functions, a custom exception class that captures stack traces at the point of throw, and a set of convenience macros for writing unit tests, among other utilities. 
+The library leverages modern C++20 features and best practices to provide a robust foundation for software development.
 
 ## Getting Started
 ### Prerequisites
@@ -50,7 +53,6 @@ This will execute the IOCore test suite using Catch2.
 - **Unit Testing Macros**: Facilitates writing unit tests by providing convenient macros that integrate seamlessly with Catch2.
 
 ## Dependencies
-
 - **Catch2 v3**: Test framework for C++ (can be fetched using FetchContent).
 - **FakeIt**: Mocking framework for C++ (also fetched using FetchContent).
 
