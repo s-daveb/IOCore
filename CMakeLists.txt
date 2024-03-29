@@ -15,7 +15,7 @@ disable_deprecated_features()
 disable_tests_if_subproject()
 
 project(IOCore
-	VERSION 0.2
+	VERSION 0.2.3
 	LANGUAGES C CXX
 	# HOMEPAGE_URL <URL>
 	DESCRIPTION "A framework for application management, file IO, etc"
@@ -154,7 +154,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${ARTIFACT_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${ARTIFACT_DIR}/bin)
 
 # Include directories
-include_directories(PUBLIC ${CMAKE_SOURCE_DIR}/include)
+#include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # Example: Add a target to copy application resource files to the build dir
 add_custom_target(copy_assets

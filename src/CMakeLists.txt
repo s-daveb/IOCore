@@ -8,6 +8,8 @@ set_target_properties(IOCore PROPERTIES
 	POSITION_INDEPENDENT_CODE ON
 )
 
+target_include_directories(IOCore PUBLIC ${CMAKE_SOURCE_DIR}/include)
+
 # Add additional link options for boost::stacktrace
 if (USE_BOOST_STACKTRACE)
 	target_link_options(IOCore INTERFACE -rdynamic)
