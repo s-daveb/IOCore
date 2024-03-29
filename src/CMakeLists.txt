@@ -7,7 +7,7 @@ add_library(IOCore OBJECT
 set_target_properties(IOCore PROPERTIES
 	POSITION_INDEPENDENT_CODE ON
 )
-target_include_directories(IOCore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(IOCore PUBLIC ${IOCore_INCLUDE_DIRS})
 
 # Add additional link options for boost::stacktrace
 if (USE_BOOST_STACKTRACE)

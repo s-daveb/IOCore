@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 3.26)
 
+SET(IOCore_CMAKE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+SET(IOCore_INCLUDE_DIRS ${IOCore_CMAKE_SOURCE_DIR}/include)
+
 # Additional paths to search for custom and third-party CMake modules
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH ${IOCore_CMAKE_SOURCE_DIR}/cmake)
 
 include(BuildProperties)
 
@@ -15,11 +18,12 @@ disable_deprecated_features()
 disable_tests_if_subproject()
 
 project(IOCore
-	VERSION 0.2.4
+	VERSION 0.2.6
 	LANGUAGES C CXX
 	# HOMEPAGE_URL <URL>
 	DESCRIPTION "A framework for application management, file IO, etc"
 )
+
 include(CPM)
 
 option(USE_CCACHE
