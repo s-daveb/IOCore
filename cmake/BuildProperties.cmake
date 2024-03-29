@@ -21,11 +21,10 @@ endfunction()
 
 function(disable_tests_if_subproject)
 if (NOT DEFINED PROJECT_NAME)
-	option(ENABLE_TESTS "Build and run unit tests" ON)
+	option(BUILD_TESTING "Build and run unit tests" ON)
 else()
-	option(ENABLE_TESTS "Build and run unit tests" OFF)
+	option(BUILD_TESTING "Build and run unit tests" OFF)
 endif()
 endfunction()
-
 
 # vim: ts=4 sts=4 sw=4 noet :
