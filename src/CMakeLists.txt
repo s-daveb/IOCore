@@ -8,7 +8,6 @@ set_target_properties(IOCore PROPERTIES
 	POSITION_INDEPENDENT_CODE ON
 )
 
-
 # Add additional link options for boost::stacktrace
 if (USE_BOOST_STACKTRACE)
 	target_link_options(IOCore INTERFACE -rdynamic)

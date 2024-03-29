@@ -88,7 +88,7 @@ if (USE_EXECINFO_STACKTRACE AND (NOT USE_BOOST_STACKTRACE))
 	CHECK_INCLUDE_FILE("execinfo.h" HAVE_EXECINFO_H)
 
 	if (HAVE_EXECINFO_H)
-		add_definitions(PRIVATE -DHAVE_EXECINFO_H=1)
+		add_definitions(-DHAVE_EXECINFO_H=1)
 	endif()
 
 	find_library(LIB_EXEC_INFO
@@ -106,8 +106,8 @@ elseif((NOT USE_EXECINFO_STACKTRACE) AND USE_BOOST_STACKTRACE)
 	find_package(Boost 1.82.0 COMPONENTS system filesystem REQUIRED)
 
 	if (Boost_FOUND)
-		add_definitions(PUBLIC -DBOOST_STACKTRACER=1)
-		add_definitions(PUBLIC -DBOOST_STACKTRACE_USE_ADDR2LINE=1)
+		add_definitions(-DBOOST_STACKTRACER=1)
+		add_definitions(-DBOOST_STACKTRACE_USE_ADDR2LINE=1)
 
 		include_directories(${Boost_INCLUDE_DIRS})
 	endif()
