@@ -31,19 +31,31 @@ BEGIN_TEST_SUITE("IOCore::Application")
 {
 	using namespace IOCore;
 	struct MockApplicationClass : public Application {
+		MockApplicationClass(
+		    int argc, c::const_string argv[], c::const_string env[]
+		)
+		    : Application(argc, argv, env)
+		{
+		}
 		auto run() -> int override { return 0; }
 	};
 	struct TestFixture {
-		TestFixture() : derived_app(), app(derived_app) {}
+		TestFixture()
+		    : derived_app(3, SimulatedLaunch::argv, SimulatedLaunch::env)
+		    , app(derived_app)
+		{
+		}
 
 		MockApplicationClass derived_app;
 		Application& app;
 	};
 
-	FIXTURE_TEST("IOCore::Application - Init method populates "
-	             "Arguments list and Environment dictionary")
+	TEST("IOCore::Application - Constructor populates "
+	     "Arguments list and Environment dictionary")
 	{
-		app.init(3, SimulatedLaunch::argv, SimulatedLaunch::env);
+		MockApplicationClass app(
+		    3, SimulatedLaunch::argv, SimulatedLaunch::env
+		);
 
 		CHECK(app.getArguments().size() == 3);
 		CHECK(app.getArguments()[0] == "param1");

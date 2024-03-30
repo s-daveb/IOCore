@@ -16,40 +16,39 @@
 namespace IOCore {
 class Application // NOLINT(readability-identifier-naming)
 {
-public:
-  virtual ~Application() = default;
+    public:
+	virtual ~Application() = default;
 
-  virtual auto init(int argc, c::const_string argv[], c::const_string envp[])
-      -> void;
+	virtual auto run() -> int = 0;
 
-  virtual auto run() -> int = 0;
+	[[nodiscard]] virtual auto getArguments() const
+	    -> const std::vector<std::string>&
+	{
+		return this->arguments;
+	}
+	[[nodiscard]] virtual auto getEnvironment() const
+	    -> const Dictionary<const std::string>&
+	{
+		return this->environment_variables;
+	}
 
-  [[nodiscard]] virtual auto getArguments() const
-      -> const std::vector<std::string> & {
-    return this->arguments;
-  }
-  [[nodiscard]] virtual auto getEnvironment() const
-      -> const Dictionary<const std::string> & {
-    return this->environment_variables;
-  }
+    protected:
+	Application(int argc, c::const_string argv[], c::const_string env[]);
 
-protected:
-  Application();
+	/// @{
+	/// @name Disable copy and move operators / constructors
+	Application(const Application&) = delete;
+	auto operator=(const Application&) -> Application& = delete;
+	/// @}
 
-  /// @{
-  /// @name Disable copy and move operators / constructors
-  Application(const Application &) = delete;
-  auto operator=(const Application &) -> Application & = delete;
-  /// @}
+	void read_arguments(int argc, c::const_string argv[]);
+	void create_env_dictionary(c::const_string envp[]);
 
-  void read_arguments(int argc, c::const_string argv[]);
-  void create_env_dictionary(c::const_string envp[]);
-
-  std::vector<std::string> arguments;
-  Dictionary<const std::string> environment_variables;
+	std::vector<std::string> arguments;
+	Dictionary<const std::string> environment_variables;
 };
 
 } // namespace IOCore
 
 // clang-format off
-// vim: set foldmethod=syntax foldminlines=10 textwidth=80 ts=4 sts=0 sw=4 noexpandtab ft=cpp.doxygen :
+// vim: set foldmethod=syntax foldminlines=10 textwidth=80 ts=8 sts=0 sw=8 noexpandtab ft=cpp.doxygen :
