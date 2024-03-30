@@ -19,12 +19,12 @@
 
 #define ASSERT(condition)                                                       \
 	if (condition == false) {                                               \
-		elemental::assert_impl(#condition);                             \
+		IOCore::assert_impl(#condition);                                \
 	}
 
 #define ASSERT_MSG(condition, msg)                                              \
 	if (condition == false) {                                               \
-		elemental::assert_impl(#condition, msg);                        \
+		IOCore::assert_impl(#condition, msg);                           \
 	}
 
 namespace IOCore {
