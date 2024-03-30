@@ -153,10 +153,7 @@ if (BUILD_TESTING)
 endif()
 
 # Set output directories for build targets
-set(ARTIFACT_DIR "${CMAKE_BINARY_DIR}/out")
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${ARTIFACT_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${ARTIFACT_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${ARTIFACT_DIR}/bin)
+set_artifact_dir(${CMAKE_BINARY_DIR}/lol)
 
 # Add subdirectories
 add_subdirectory(src)

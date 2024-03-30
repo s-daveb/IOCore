@@ -12,6 +12,13 @@ function(prevent_in_source_build)
 	endif()
 endfunction()
 
+function(set_artifact_dir path)
+	set(ARTIFACT_DIR  ${path})
+	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${ARTIFACT_DIR}/lib PARENT_SCOPE)
+	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${ARTIFACT_DIR}/lib PARENT_SCOPE)
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${ARTIFACT_DIR}/bin PARENT_SCOPE)
+endfunction()
+
 function(disable_deprecated_features)
 	# Use new timestamp behavior when extracting files archives
 	if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
@@ -26,5 +33,6 @@ else()
 	option(BUILD_TESTING "Build and run unit tests" OFF)
 endif()
 endfunction()
+
 
 # vim: ts=4 sts=4 sw=4 noet :
