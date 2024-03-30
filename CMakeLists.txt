@@ -136,7 +136,8 @@ if (BUILD_TESTING)
 		set_target_properties(Catch2 PROPERTIES
 			CXX_STANDARD 20
 		)
-	elseif (TARGET Catch2WithMain)
+	endif()
+	if (TARGET Catch2WithMain)
 		set_target_properties(Catch2WithMain PROPERTIES
  		    	CXX_STANDARD 20
 		)
