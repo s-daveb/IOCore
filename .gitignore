@@ -137,3 +137,4 @@ env/
 .cache/
 compile_commands.json
 vim-debug
+docs/
