@@ -153,7 +153,7 @@ if (BUILD_TESTING)
 endif()
 
 # Set output directories for build targets
-set_artifact_dir(${CMAKE_BINARY_DIR}/lol)
+set_artifact_dir(${CMAKE_BINARY_DIR}/out)
 
 # Add subdirectories
 add_subdirectory(src)
