@@ -117,6 +117,16 @@ elseif((NOT USE_EXECINFO_STACKTRACE) AND USE_BOOST_STACKTRACE)
 	endif()
 endif()
 
+CPMFindPackage(
+	NAME fmt
+	GITHUB_REPOSITORY  fmtlib/fmt
+	GIT_TAG 10.2.1
+)
+if (fmt_DIR)
+	list(APPEND CMAKE_MODULE_PATH ${fmt_DIR})
+endif()
+
+
 if (BUILD_TESTING)
 	CPMFindPackage(NAME Catch2
 		GITHUB_REPOSITORY catchorg/Catch2

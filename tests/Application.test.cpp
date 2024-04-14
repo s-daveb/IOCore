@@ -69,6 +69,39 @@ BEGIN_TEST_SUITE("IOCore::Application")
 		    "markdown?msg=hello-world"
 		);
 	};
+
+	TEST("IOCore::DoubleConstructionException error message is correct")
+	{
+		try {
+			throw DoubleConstructionException("TestClass");
+
+		} catch (Exception& except) {
+			std::string_view message = except.what();
+			constexpr auto kNotFound = message.npos;
+
+			INFO("Message includes provided class name");
+			REQUIRE(message.find("TestClass") != kNotFound);
+
+			INFO("Exception class has proper stacktracce");
+			REQUIRE(except.stacktrace().find("Catch") != kNotFound);
+		}
+	}
+
+	TEST("IOCore::Application - Cannot double construct")
+	{
+		MockApplicationClass app(
+		    3, SimulatedLaunch::argv, SimulatedLaunch::env
+		);
+
+		REQUIRE_THROWS_AS(
+		    [&]() -> void {
+			    auto* app2 = new MockApplicationClass(
+				3, SimulatedLaunch::argv, SimulatedLaunch::env
+			    );
+		    }(),
+		    DoubleConstructionException
+		);
+	}
 }
 // clang-format off
 // vim: set foldmethod=marker foldmarker=#region,#endregion textwidth=80 ts=8 sts=0 sw=8  noexpandtab ft=cpp.doxygen :

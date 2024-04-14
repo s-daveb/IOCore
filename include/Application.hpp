@@ -9,15 +9,25 @@
 
 #pragma once
 
+#include <atomic>
+#include <format>
+#include <string>
 #include <vector>
+
+#include <fmt/core.h>
+
+#include <Exception.hpp>
 
 #include "types.hpp"
 
 namespace IOCore {
+
+struct DoubleConstructionException;
+
 class Application // NOLINT(readability-identifier-naming)
 {
     public:
-	virtual ~Application() = default;
+	virtual ~Application();
 
 	virtual auto run() -> int = 0;
 
@@ -46,8 +56,19 @@ class Application // NOLINT(readability-identifier-naming)
 
 	std::vector<std::string> arguments;
 	Dictionary<const std::string> environment_variables;
+
+    private:
+	static std::atomic_bool is_initialized;
 };
 
+struct DoubleConstructionException : public IOCore::Exception {
+	DoubleConstructionException(const std::string& classname)
+	    : IOCore::Exception(fmt::format(
+		  "A constructor was called twice for {}.", classname.c_str()
+	      ))
+	{
+	}
+};
 } // namespace IOCore
 
 // clang-format off

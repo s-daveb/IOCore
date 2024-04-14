@@ -11,15 +11,34 @@
 #include "Exception.hpp"
 #include "types.hpp"
 
+#include <atomic>
 #include <string>
 #include <string_view>
 #include <vector>
 
 using namespace IOCore;
+
+std::atomic_bool Application::is_initialized = false;
+
+Application::~Application()
+{
+	Application::is_initialized = false;
+}
+
+inline auto thread_safe_check(std::atomic_bool& flag) -> bool
+{
+	bool expected = false;
+	return !(flag.compare_exchange_weak(expected, true));
+}
+
 Application::Application(
     int argc, c::const_string argv[], c::const_string envp[]
 )
 {
+	if (thread_safe_check(is_initialized)) {
+		throw DoubleConstructionException("Application");
+	}
+
 	if (argv == nullptr || envp == nullptr) {
 		std::string problem = (argv == nullptr) ? "argv " : "envp ";
 		auto message = "Cannot instantiate the application class "

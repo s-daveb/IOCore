@@ -16,6 +16,7 @@ endif()
 
 set(LIBRARY_DEP_LIBS
 	${STACKTRACE_DEP_LIBS}
+	fmt::fmt
 )
 target_link_libraries(IOCore PUBLIC ${LIBRARY_DEP_LIBS})
 
