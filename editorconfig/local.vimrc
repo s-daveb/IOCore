@@ -86,7 +86,7 @@ function! BuildDebug()
 
 endfunction
 
-function RunTests()
+function! RunTests()
 	if (s:ninja_path != '')
 		if (
 		\ (!filereadable(s:build_dir . '/CMakeCache.txt')) ||
