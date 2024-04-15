@@ -1,4 +1,4 @@
-/* debug.hpp
+/* debug_print.hpp
  * Copyright © 2024 Saul D. Beniquez
  * License: Mozilla Public License v. 2.0
  *

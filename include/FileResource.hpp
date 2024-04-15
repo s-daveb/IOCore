@@ -39,10 +39,9 @@ class FileResource {
 
 struct UnreachablePathException : public Exception {
 	UnreachablePathException(const std::filesystem::path& path)
-	    : Exception("Unreachable path or directory")
-	    , unreachable_path(path)
+	    : Exception("Unreachable path or directory"), unreachable_path(path)
 	{
-		this->build_what_message(
+		this->generate_final_what_message(
 		    "IOCore::UnreachablePathException", path.c_str()
 		);
 	}

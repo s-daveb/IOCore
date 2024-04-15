@@ -2,6 +2,7 @@
 add_executable(test-runner
 	runtime-tests.cpp
 	Application.test.cpp
+	FileResource.test.cpp
 	Exception.test.cpp
 )
 

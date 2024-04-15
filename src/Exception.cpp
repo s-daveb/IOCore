@@ -14,12 +14,10 @@
 
 #include <algorithm>
 #include <exception>
-#include <iostream>
 #include <optional>
-#include <sstream>
-#include <stdexcept>
 #include <string>
-#include <utility>
+
+#include <fmt/core.h>
 
 using IOCore::Exception;
 
@@ -34,7 +32,7 @@ Exception::Exception(c::const_string error_message)
     , stack_trace(IOCore::generate_stacktrace(kDEFAULT_STACKFRAMES_TO_STRIP))
     , inner_exception_ptr()
 {
-	build_what_message();
+	generate_final_what_message();
 }
 
 Exception::Exception(const std::string& error_message)
@@ -44,7 +42,7 @@ Exception::Exception(const std::string& error_message)
     , stack_trace(IOCore::generate_stacktrace(kDEFAULT_STACKFRAMES_TO_STRIP))
     , inner_exception_ptr()
 {
-	build_what_message();
+	generate_final_what_message();
 }
 
 Exception::Exception(const std::exception& inner)
@@ -54,7 +52,7 @@ Exception::Exception(const std::exception& inner)
     , inner_exception_ptr(std::make_exception_ptr(&inner))
     , stack_trace(IOCore::generate_stacktrace(kDEFAULT_STACKFRAMES_TO_STRIP))
 {
-	build_what_message();
+	generate_final_what_message();
 }
 
 auto Exception::what() const noexcept -> const char*
@@ -85,33 +83,34 @@ auto prepend_tabs_to_lines(const std::string& input) -> std::string
 
 	return results_buffer.str();
 }
-void Exception::build_what_message(
+void Exception::generate_final_what_message(
     c::const_string class_name, c::const_string optional_data
 )
 {
-
 	std::string my_name(class_name);
-	std::stringstream buffer;
 
 	if (my_name.empty()) {
 		my_name = "IOCore::Exception";
-	};
+	}
+
+	if (std::strlen(optional_data) <= 0) {
+		optional_data = "(null)";
+	}
 
 	std::string indented_stacktrace =
 	    prepend_tabs_to_lines(this->stack_trace);
 
-	buffer << my_name << "::what(): { " << std::endl
-	       << "\terror: " << error_message.c_str() << std::endl;
-
-	if (std::strlen(optional_data) > 0) {
-		buffer << "\tdata: " << optional_data << std::endl;
-	}
-
-	buffer << "\tstack_trace: " << std::endl
-	       << indented_stacktrace << std::endl
-	       << "};" << std::endl;
-
-	this->what_message = buffer.str().c_str();
+	this->what_message = fmt::format(
+	    "{}::what(): {{\n"
+	    "\terror: {}\n"
+	    "\tdata: {}\n"
+	    "\tstack_trace:{}\n"
+	    "}};",
+	    my_name.c_str(),
+	    error_message.c_str(),
+	    optional_data,
+	    indented_stacktrace
+	);
 }
 
 // clang-format off

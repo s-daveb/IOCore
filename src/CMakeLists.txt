@@ -2,6 +2,7 @@
 add_library(IOCore OBJECT
 	Application.cpp
 	Exception.cpp
+	FileResource.cpp
 	debuginfo.cpp
 )
 set_target_properties(IOCore PROPERTIES

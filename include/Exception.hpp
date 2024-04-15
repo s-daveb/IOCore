@@ -45,7 +45,7 @@ class Exception : public std::exception {
 	auto stacktrace() const noexcept -> const std::string&;
 
     protected:
-	void build_what_message(
+	void generate_final_what_message(
 	    c::const_string class_name = "", c::const_string optional_data = ""
 	);
 
