@@ -12,13 +12,13 @@ set_target_properties(IOCore PROPERTIES
 set(IOCore_PUBLIC_INCLUDE_DIR	${IOCore_ARTIFACT_DIR}/include)
 file(MAKE_DIRECTORY ${IOCore_PUBLIC_INCLUDE_DIR})
 
-add_custom_target(IOCore_include_files COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/include ${IOCore_PUBLIC_INCLUDE_DIR}/IOCore
+add_custom_target(IOCore_include_files COMMAND ${CMAKE_COMMAND} -E copy_directory ${IOCore_CMAKE_SOURCE_DIR}/include ${IOCore_PUBLIC_INCLUDE_DIR}/IOCore
     DEPENDS ${IOCore_INCLUDE_DIR}
     COMMENT "Copying include files to ${IOCore_PUBLIC_INCLUDE_DIR}"
 )
 add_dependencies(IOCore IOCore_include_files)
 
-target_include_directories(IOCore PRIVATE ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(IOCore PUBLIC ${IOCore_CMAKE_SOURCE_DIR}/include)
 
 # Add additional link options for boost::stacktrace
 if (USE_BOOST_STACKTRACE)
