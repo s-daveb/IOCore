@@ -26,7 +26,7 @@
 
 
 
-let s:build_dir = 'vim-debug'
+let s:build_dir = '.vim/lspbuild'
 let s:build_cores = 6
 let s:make_args =  '-C '. s:build_dir . ' -j ' . s:build_cores . ' all'
 
@@ -83,7 +83,11 @@ function! BuildDebug()
 			vert resize +100
 		endif
 	endif
-
+	" Check if .compile_commands.json exists in the current working directory
+	if !filereadable('.compile_commands.json')
+  	  " File does not exist, create a symbolic link
+  	  execute 'silent !ln -s ' . $PWD . '/.vim/lspbuild/compile_commands ' . $PWD
+	endif
 endfunction
 
 function! RunTests()

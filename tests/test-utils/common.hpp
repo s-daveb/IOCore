@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "sys/debuginfo.hpp"
+#include "IOCore/sys/debuginfo.hpp"
 
 #include <catch2/catch_test_macros.hpp>
 

@@ -8,13 +8,12 @@
  * obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#include "FileResource.hpp"
+#include "IOCore/FileResource.hpp"
+#include "IOCore/Exception.hpp"
+#include "IOCore/sys/debuginfo.hpp"
+#include "IOCore/util/debug_print.hpp"
 
-#include "sys/debuginfo.hpp"
 #include "test-utils/common.hpp"
-#include "util/debug_print.hpp"
-
-#include "Exception.hpp"
 
 #include <filesystem>
 #include <fstream>

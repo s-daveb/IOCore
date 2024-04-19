@@ -7,7 +7,7 @@
  * obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#include "Exception.hpp"
+#include "IOCore/Exception.hpp"
 
 #include "test-utils/common.hpp"
 
@@ -57,7 +57,8 @@ BEGIN_TEST_SUITE("IOCore::Exception")
 
 		SECTION("3. With STL exception")
 		{
-			IOCore::Exception obj(std::runtime_error("Sample Error"));
+			IOCore::Exception obj(std::runtime_error("Sample Error")
+			);
 		}
 		SECTION("4. With destroyed stack")
 		{

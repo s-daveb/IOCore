@@ -7,8 +7,8 @@
  * obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#include "Application.hpp"
-#include "Exception.hpp"
+#include "IOCore/Application.hpp"
+#include "IOCore/Exception.hpp"
 
 #include "test-utils/common.hpp"
 #include <catch2/matchers/catch_matchers_string.hpp>
