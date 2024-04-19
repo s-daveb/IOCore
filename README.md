@@ -1,6 +1,12 @@
 
 # IOCore: A C++20 Application Framework Library 
 
+### CI/CD Build Status
+| Arch Linux | FreeBSD 14.0 | macOS | Windows| 
+-------------|--------------|-------|--------|
+|![Build Status](https://buildbot.beniquez.me/badges/IOCore-linux-builder.svg) |![Build Status](https://buildbot.beniquez.me/badges/IOCore-macos-builder.svg) | ![Build Status](https://buildbot.beniquez.me/badges/IOCore-freebsd-builder.svg) | TBD |
+
+
 IOCore is a comprehensive C++20 library designed to simplify common programming tasks.
 
 It features advanced argument parsing functions, a custom exception class that captures stack traces at the point of throw, and a set of convenience macros for writing unit tests, among other utilities. 
