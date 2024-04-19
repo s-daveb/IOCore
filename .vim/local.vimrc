@@ -26,7 +26,7 @@
 
 
 
-let s:build_dir = '.vim/lspbuild'
+let s:build_dir = 'debug'
 let s:build_cores = 6
 let s:make_args =  '-C '. s:build_dir . ' -j ' . s:build_cores . ' all'
 
