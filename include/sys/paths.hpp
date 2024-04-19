@@ -9,7 +9,6 @@
 
 #pragma once
 
-#include "Exception.hpp"
 #include "sys/platform.hpp"
 
 #include <filesystem>
@@ -18,7 +17,7 @@ namespace IOCore::paths {
 auto get_home() -> std::filesystem::path;
 auto get_app_config_root() -> std::filesystem::path;
 
-auto expand_path(const std::filesystem::path &) -> std::filesystem::path;
+auto expand_path(const std::filesystem::path&) -> std::filesystem::path;
 } // namespace IOCore::paths
 
 // clang-format off
