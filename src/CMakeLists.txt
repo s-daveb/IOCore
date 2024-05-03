@@ -33,9 +33,11 @@ target_link_libraries(IOCore PUBLIC ${LIBRARY_DEP_LIBS})
 target_link_libraries(IOCore PRIVATE fmt::fmt-header-only)
 
 add_library(IOCoreStatic STATIC)
+add_library(IOCore::IOCoreStatic ALIAS IOCoreStatic )
 set_target_properties(IOCoreStatic PROPERTIES OUTPUT_NAME "IOCore")
 
 add_library(IOCoreShared SHARED )
+add_library(IOCore::IOCoreShared ALIAS IOCoreShared )
 set_target_properties(IOCoreShared PROPERTIES OUTPUT_NAME "IOCore")
 
 target_link_libraries(IOCoreStatic PRIVATE IOCore)
@@ -44,11 +46,9 @@ target_link_libraries(IOCoreShared PRIVATE IOCore)
 target_link_libraries(IOCoreStatic PUBLIC fmt::fmt-header-only)
 target_link_libraries(IOCoreShared PUBLIC fmt::fmt-header-only)
 
-target_include_directories(IOCoreStatic INTERFACE ${IOCore_PUBLIC_INCLUDE_DIR})
-target_include_directories(IOCoreShared INTERFACE ${IOCore_PUBLIC_INCLUDE_DIR})
+target_include_directories(IOCoreStatic PUBLIC ${IOCore_PUBLIC_INCLUDE_DIR})
+target_include_directories(IOCoreShared PUBLIC ${IOCore_PUBLIC_INCLUDE_DIR})
 
 
-add_library(IOCore::Static ALIAS IOCoreStatic )
-add_library(IOCore::Shared ALIAS IOCoreShared )
 
 # vim: ts=2 sw=2 noet foldmethod=indent :
