@@ -13,7 +13,7 @@ set(IOCore_PUBLIC_INCLUDE_DIR	${IOCore_ARTIFACT_DIR}/include)
 file(MAKE_DIRECTORY ${IOCore_PUBLIC_INCLUDE_DIR})
 
 add_custom_target(IOCore_include_files COMMAND ${CMAKE_COMMAND} -E copy_directory ${IOCore_CMAKE_SOURCE_DIR}/include ${IOCore_PUBLIC_INCLUDE_DIR}/IOCore
-    DEPENDS ${IOCore_INCLUDE_DIR}
+  	DEPENDS ${IOCore_CMAKE_SOURCE_DIR}/include
     COMMENT "Copying include files to ${IOCore_PUBLIC_INCLUDE_DIR}"
 )
 add_dependencies(IOCore IOCore_include_files)
