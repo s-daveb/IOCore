@@ -33,11 +33,11 @@ target_link_libraries(IOCore PUBLIC ${LIBRARY_DEP_LIBS})
 target_link_libraries(IOCore PRIVATE fmt::fmt-header-only)
 
 add_library(IOCoreStatic STATIC)
-add_library(IOCore::IOCoreStatic ALIAS IOCoreStatic )
+add_library(IOCore::Static ALIAS IOCoreStatic )
 set_target_properties(IOCoreStatic PROPERTIES OUTPUT_NAME "IOCore")
 
 add_library(IOCoreShared SHARED )
-add_library(IOCore::IOCoreShared ALIAS IOCoreShared )
+add_library(IOCore::Shared ALIAS IOCoreShared )
 set_target_properties(IOCoreShared PROPERTIES OUTPUT_NAME "IOCore")
 
 target_link_libraries(IOCoreStatic PRIVATE IOCore)

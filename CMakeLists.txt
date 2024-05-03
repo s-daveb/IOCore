@@ -14,11 +14,11 @@ disable_deprecated_features()
 # When this package is included as a subproject, there's no need to
 # build and run the unit-tests.
 # Sets -DBUILD_TESTING to false by default if this is a third-party lib build
-# This check must appear before project()
+# This check must appear beforezR project()
 disable_tests_if_subproject()
 
 project(IOCore
-	VERSION 0.2.17
+	VERSION 0.2.18
 	LANGUAGES C CXX
 	# HOMEPAGE_URL <URL>
 	DESCRIPTION "A framework for application management, file IO, etc"
