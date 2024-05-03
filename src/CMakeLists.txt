@@ -1,5 +1,6 @@
 # Define the library 'engine'
 add_library(IOCore OBJECT
+PUBLIC
 	Application.cpp
 	Exception.cpp
 	FileResource.cpp
