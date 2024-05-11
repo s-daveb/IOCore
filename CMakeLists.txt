@@ -4,7 +4,7 @@ SET(IOCore_CMAKE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 
 # Additional paths to search for custom and third-party CMake modules
-list(APPEND CMAKE_MODULE_PATH ${IOCore_CMAKE_SOURCE_DIR}/cmake)
+list(PREPEND CMAKE_MODULE_PATH ${IOCore_CMAKE_SOURCE_DIR}/cmake)
 
 include(BuildProperties)
 
@@ -15,6 +15,7 @@ disable_deprecated_features()
 # build and run the unit-tests.
 # Sets -DBUILD_TESTING to false by default if this is a third-party lib build
 # This check must appear beforezR project()
+
 disable_tests_if_subproject()
 
 project(IOCore
