@@ -17,13 +17,16 @@
 #include <stdexcept>
 #include <string>
 
+void inline assert_impl(
+    c::const_string failed_condition, c::const_string assert_reason = ""
+);
+
 #define ASSERT(condition)                                                       \
-	if (condition == false) {                                               \
+	if (static_cast<bool>(condition) == false) {                            \
 		IOCore::assert_impl(#condition);                                \
 	}
-
 #define ASSERT_MSG(condition, msg)                                              \
-	if (condition == false) {                                               \
+	if (static_cast<bool>(condition) == false) {                            \
 		IOCore::assert_impl(#condition, msg);                           \
 	}
 

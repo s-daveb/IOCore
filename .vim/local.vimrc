@@ -84,9 +84,9 @@ function! BuildDebug()
 		endif
 	endif
 	" Check if .compile_commands.json exists in the current working directory
-	if !filereadable('.compile_commands.json')
+	if !filereadable('compile_commands.json')
   	  " File does not exist, create a symbolic link
-  	  execute 'silent !ln -s ' . $PWD . '/.vim/lspbuild/compile_commands.json' . $PWD
+  	  execute 'silent !ln -s ' . $PWD . '/' . $build_dir . '/compile_commands.json' . $PWD
 	endif
 endfunction
 
