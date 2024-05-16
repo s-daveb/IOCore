@@ -6,19 +6,10 @@ SET(IOCore_CMAKE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 # Additional paths to search for custom and third-party CMake modules
 list(APPEND CMAKE_MODULE_PATH ${IOCore_CMAKE_SOURCE_DIR}/cmake)
 
-include(BuildProperties)
-
-prevent_in_source_build()
-disable_deprecated_features()
-
-# When this package is included as a subproject, there's no need to
-# build and run the unit-tests.
-# Sets -DBUILD_TESTING to false by default if this is a third-party lib build
-# This check must appear beforezR project()
-disable_tests_if_subproject()
+include(DefaultConfig)
 
 project(IOCore
-	VERSION 0.2.22
+	VERSION 0.2.23
 	LANGUAGES C CXX
 	# HOMEPAGE_URL <URL>
 	DESCRIPTION "A framework for application management, file IO, etc"
@@ -161,6 +152,8 @@ if (BUILD_TESTING)
 		endif()
 	endif()
 endif()
+
+include(BuildProperties)
 
 # Set output directories for build targets
 set_artifact_dir(${CMAKE_BINARY_DIR}/out)
