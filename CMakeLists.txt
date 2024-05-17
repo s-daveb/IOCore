@@ -19,7 +19,7 @@ disable_deprecated_features()
 disable_tests_if_subproject()
 
 project(IOCore
-	VERSION 0.2.22
+	VERSION 0.2.23
 	LANGUAGES C CXX
 	# HOMEPAGE_URL <URL>
 	DESCRIPTION "A framework for application management, file IO, etc"

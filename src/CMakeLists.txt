@@ -31,7 +31,7 @@ set(LIBRARY_DEP_LIBS
 )
 
 target_link_libraries(IOCore PUBLIC ${LIBRARY_DEP_LIBS})
-target_link_libraries(IOCore PRIVATE fmt::fmt-header-only)
+target_link_libraries(IOCore PUBLIC fmt::fmt-header-only)
 
 add_library(IOCoreStatic STATIC)
 add_library(IOCore::Static ALIAS IOCoreStatic )
