@@ -9,7 +9,7 @@ include(BuildProperties)
 include(DefaultConfig)
 
 project(IOCore
-	VERSION 0.2.24
+	VERSION 0.2.25
 	LANGUAGES C CXX
 	# HOMEPAGE_URL <URL>
 	DESCRIPTION "A framework for application management, file IO, etc"
