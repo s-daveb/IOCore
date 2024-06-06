@@ -110,11 +110,27 @@ endif()
 
 CPMFindPackage(
 	NAME fmt
-	GITHUB_REPOSITORY  fmtlib/fmt
-	GIT_TAG 10.2.1
+	URL https://github.com/fmtlib/fmt/archive/refs/tags/10.2.1.zip
+	URL_HASH SHA256=d368f9c39a33a3aef800f5be372ec1df1c12ad57ada1f60adc62f24c0e348469
 )
 if (fmt_DIR)
 	list(APPEND CMAKE_MODULE_PATH ${fmt_DIR})
+endif()
+
+CPMAddPackage(NAME tomlplusplus
+	URL https://github.com/marzer/tomlplusplus/archive/refs/tags/v3.4.0.zip
+	URL_HASH SHA256=ad2a4cd786e25305d802e7490ea65a2531195e5834bf6b4fa5a323421fd81f9b
+)
+if (tomlplusplus_DIR)
+	list(APPEND CMAKE_MODULE_PATH ${tomlplusplus_DIR})
+endif()
+
+CPMAddPackage(NAME nlohmann_json
+	URL https://github.com/nlohmann/json/archive/refs/tags/v3.11.3.zip
+	URL_HASH SHA256=04022b05d806eb5ff73023c280b68697d12b93e1b7267a0b22a1a39ec7578069
+)
+if (nlohmann_json_DIR)
+	list(APPEND CMAKE_MODULE_PATH ${nlohmann_json_DIR})
 endif()
 
 

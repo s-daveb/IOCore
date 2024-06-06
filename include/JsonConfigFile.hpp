@@ -17,13 +17,14 @@
 
 #include <nlohmann/json.hpp>
 
-namespace elemental::configuration {
+namespace IOCore {
 
-class JsonConfigFile : public FileResource
-{
-  public:
-	JsonConfigFile(const std::filesystem::path& file_path,
-	               CreateDirs mode = CreateDirs::Disable);
+class JsonConfigFile : public FileResource {
+    public:
+	JsonConfigFile(
+	    const std::filesystem::path& file_path,
+	    CreateDirs mode = CreateDirs::Disable
+	);
 	~JsonConfigFile() override;
 
 	auto read() -> nlohmann::json&;
@@ -43,10 +44,12 @@ class JsonConfigFile : public FileResource
 
 	auto getJsonData() -> nlohmann::json& { return this->config_json; };
 
-  protected:
+    protected:
 	nlohmann::json config_json;
+
+    private:
 };
-} // namespace elemental::configuration
+} // namespace IOCore
 
 // clang-format off
 // vim: set foldmethod=syntax foldlevel=1 foldminlines=12 textwidth=80 ts=8 sts=0 sw=8  noexpandtab ft=cpp.doxygen :

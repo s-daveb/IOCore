@@ -24,8 +24,6 @@
 " ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 " POSSIBILITY OF SUCH DAMAGE. @}
 
-
-
 let s:build_dir = 'debug'
 let s:build_cores = 6
 let s:make_args =  '-C '. s:build_dir . ' -j ' . s:build_cores . ' all'
@@ -60,8 +58,6 @@ function! BuildDebug()
 		\ (!filereadable(s:build_dir . '/CMakeCache.txt')) ||
 		\ (!filereadable(s:build_dir . '/build.ninja'))
 		\ )
-
-
 			exec ':Dispatch ' . s:cmake_call . ' && ' . s:make_call
 		endif
 
@@ -132,7 +128,9 @@ set path+=src
 set path+=include
 set path+=app
 
-autocmd! BufWritePre *.c,*.h,*.cpp,*.hpp LspDocumentFormat
+if !has('nvim')
+	autocmd! BufWritePre *.c,*.h,*.cpp,*.hpp LspDocumentFormat
+endif
 
 " vim: set ts=4 sts=4 noet sw=4 foldmethod=marker foldmarker=@{,@} :
 
