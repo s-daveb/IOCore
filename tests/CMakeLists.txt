@@ -4,6 +4,8 @@ add_executable(test-runner
 	Application.test.cpp
 	FileResource.test.cpp
 	Exception.test.cpp
+	Util.macros.test.cpp
+	Util.toml.test.cpp
 )
 
 target_include_directories(test-runner PRIVATE

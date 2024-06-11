@@ -132,10 +132,14 @@ Thumbs.db
 venv/
 env/
 
-*.bak
-
-.cache/
+# Build files
+CMakeCache.txt
 compile_commands.json
 vim-debug
+CMakeFiles/*
+*.bak
+.cache/
 docs/
 .vim/*
+build/*
+.cmake/*

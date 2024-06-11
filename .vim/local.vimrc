@@ -1,4 +1,3 @@
-
 " editorconfig/local.vimrc
 " Copyright © 2023-2024 Saul D. Beniquez  @{
 "
@@ -24,7 +23,7 @@
 " ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 " POSSIBILITY OF SUCH DAMAGE. @}
 
-let s:build_dir = 'debug'
+let s:build_dir = 'build/Debug'
 let s:build_cores = 6
 let s:make_args =  '-C '. s:build_dir . ' -j ' . s:build_cores . ' all'
 

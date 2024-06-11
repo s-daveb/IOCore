@@ -14,13 +14,13 @@
 #include <catch2/catch_test_macros.hpp>
 
 #pragma GCC diagnostic ignored "-Wunused-variable"
-#define BEGIN_TEST_SUITE(name)                                                 \
-	static const char* TEST_SUITE_NAME = "[" name "]";                     \
+#define BEGIN_TEST_SUITE(name)                                                  \
+	static const char* TEST_SUITE_NAME = "[" name "]";                      \
 	namespace
 
 #define TEST(testname) TEST_CASE(testname, TEST_SUITE_NAME)
 
-#define TEST_WITH_FIXTURE(FixtureName, testname)                               \
+#define TEST_WITH_FIXTURE(FixtureName, testname)                                \
 	TEST_CASE_METHOD(FixtureName, testname, TEST_SUITE_NAME)
 
 #define FIXTURE_TEST(testname) TEST_WITH_FIXTURE(TestFixture, testname)
