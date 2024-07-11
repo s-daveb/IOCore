@@ -25,8 +25,10 @@ set(LIBRARY_DEP_LIBS
 	${STACKTRACE_DEP_LIBS}
 )
 
-target_link_libraries(IOCore PUBLIC ${LIBRARY_DEP_LIBS})
-target_link_libraries(IOCore PUBLIC fmt::fmt-header-only)
+target_link_libraries(IOCore PUBLIC 
+	fmt::fmt-header-only 
+	tomlplusplus::tomlplusplus
+)
 
 add_library(IOCoreStatic STATIC)
 add_library(IOCore::Static ALIAS IOCoreStatic )
@@ -39,8 +41,14 @@ set_target_properties(IOCoreShared PROPERTIES OUTPUT_NAME "IOCore")
 target_link_libraries(IOCoreStatic PRIVATE IOCore)
 target_link_libraries(IOCoreShared PRIVATE IOCore)
 
-target_link_libraries(IOCoreStatic PUBLIC fmt::fmt-header-only)
-target_link_libraries(IOCoreShared PUBLIC fmt::fmt-header-only)
+target_link_libraries(IOCoreStatic PUBLIC
+	fmt::fmt-header-only 
+	tomlplusplus::tomlplusplus
+)
+target_link_libraries(IOCoreShared PUBLIC
+	fmt::fmt-header-only
+	tomlplusplus::tomlplusplus
+)
 
 target_include_directories(IOCoreStatic INTERFACE ${IOCore_INCLUDE_OUTPUT_DIR})
 target_include_directories(IOCoreShared INTERFACE ${IOCore_INCLUDE_OUTPUT_DIR})

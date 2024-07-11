@@ -23,9 +23,9 @@ Enabled by default if ccache is found]=]
 ON
 )
 
-IF( NOT CMAKE_BUILD_TYPE )
+if( NOT CMAKE_BUILD_TYPE )
   SET( CMAKE_BUILD_TYPE Debug )
-ENDIF()
+endif()
 
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_CXX_STANDARD 20)
@@ -117,7 +117,7 @@ if (fmt_DIR)
 	list(APPEND CMAKE_MODULE_PATH ${fmt_DIR})
 endif()
 
-CPMAddPackage(NAME tomlplusplus
+CPMFindPackage(NAME tomlplusplus
 	URL https://github.com/marzer/tomlplusplus/archive/refs/tags/v3.4.0.zip
 	URL_HASH SHA256=ad2a4cd786e25305d802e7490ea65a2531195e5834bf6b4fa5a323421fd81f9b
 )
@@ -125,7 +125,7 @@ if (tomlplusplus_DIR)
 	list(APPEND CMAKE_MODULE_PATH ${tomlplusplus_DIR})
 endif()
 
-CPMAddPackage(NAME nlohmann_json
+CPMFindPackage(NAME nlohmann_json
 	URL https://github.com/nlohmann/json/archive/refs/tags/v3.11.3.zip
 	URL_HASH SHA256=04022b05d806eb5ff73023c280b68697d12b93e1b7267a0b22a1a39ec7578069
 )

@@ -36,7 +36,7 @@ include(Catch)
 catch_discover_tests(test-runner)
 
 add_custom_target(ctest
-	command ctest -c $configuration --test-dir . --output-on-failure
+	command ctest -C $configuration --test-dir . --output-on-failure
 )
 add_dependencies(ctest
 	test_bin
