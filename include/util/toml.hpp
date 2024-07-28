@@ -139,6 +139,14 @@ struct Table : public toml::table {
 		to_toml_table(*this, obj);
 		return *this;
 	}
+
+	template<typename T>
+	auto as() -> T
+	{
+		T retval;
+		from_toml_table(*this, retval);
+		return retval;
+	}
 };
 }
 

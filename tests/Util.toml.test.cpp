@@ -63,25 +63,31 @@ BEGIN_TEST_SUITE("Util.Toml")
 		to_toml_table(table, data);
 		from_toml_table(table, newdest);
 
-		REQUIRE(table.size() == 3);
+		CHECK(table.size() == 3);
 
-		REQUIRE(table["field1"].value<int>() == 11);
-		REQUIRE(table["field2"].value<int>() == 22);
-		REQUIRE(table["foreground"].value<std::string>() == "Green");
+		CHECK(table["field1"].value<int>() == 11);
+		CHECK(table["field2"].value<int>() == 22);
+		CHECK(table["foreground"].value<std::string>() == "Green");
 
-		REQUIRE(newdest.field1 == data.field1);
-		REQUIRE(newdest.field2 == data.field2);
-		REQUIRE(newdest.foreground == data.foreground);
+		CHECK(newdest.field1 == data.field1);
+		CHECK(newdest.field2 == data.field2);
+		CHECK(newdest.foreground == data.foreground);
 	}
 	TEST_CASE("Toml::Table class construction and basic operators")
 	{
-		IOCore::Toml::Table table = ComplexStruct{ 11, 22 };
+		auto data = ComplexStruct{ 11, 22, Blue };
+		IOCore::Toml::Table table = data;
+		auto newdest = table.as<ComplexStruct>();
 
-		REQUIRE(table.size() == 3);
-		// REQUIRE(
-		//     table["General"]["type"].value<std::string>().value() ==
-		//     "SerializableStruct"
-		//);
+		CHECK(table.size() == 3);
+
+		CHECK(table["field1"].value<int>() == 11);
+		CHECK(table["field2"].value<int>() == 22);
+		CHECK(table["foreground"].value<std::string>() == "Blue");
+
+		CHECK(newdest.field1 == data.field1);
+		CHECK(newdest.field2 == data.field2);
+		CHECK(newdest.foreground == data.foreground);
 	}
 }
 
