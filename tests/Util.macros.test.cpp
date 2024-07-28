@@ -12,20 +12,38 @@
 #include "../include/util/macros.hpp"
 #include "../include/util/toml.hpp"
 
+#include <iterator>
 #include <sstream>
+#include <string>
 
 #define PRINT_MACRO(x) buffer << #x << ": " << x << ", " << std::flush;
 
+enum Colors { Red, Green, Blue };
+
 BEGIN_TEST_SUITE("Util.Macros")
 {
-	TEST_CASE("IOCORE_FOREACH Macro works")
+	TEST_CASE("IOCORE_FOREACH_PARAM Macro works")
 	{
 		std::stringstream buffer;
 		int field1 = 10;
 		int field2 = 20;
 
-		IOCORE_FOREACH(PRINT_MACRO, field1, field2)
+		IOCORE_FOREACH_PARAM(PRINT_MACRO, field1, field2);
 		REQUIRE(buffer.str() == "field1: 10, field2: 20, ");
+	}
+
+	TEST_CASE("IOCORE_FOREACH_ENUM_PARAM Macro works")
+	{
+		std::pair<Colors, const std::string> color_pairs[] = {
+			IOCORE_FOREACH_ENUM_PARAM(
+			    IOCORE_ENUM_FIELD, Red, Green, Blue
+			)
+		};
+
+		CHECK(std::size(color_pairs) == 3);
+		REQUIRE(color_pairs[0].second == "Red");
+		REQUIRE(color_pairs[1].second == "Green");
+		REQUIRE(color_pairs[2].second == "Blue");
 	}
 }
 

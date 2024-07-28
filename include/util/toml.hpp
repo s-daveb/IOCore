@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <initializer_list>
 #include <utility>
 
@@ -17,13 +18,20 @@
 #include "../Exception.hpp"
 #include "./macros.hpp"
 
-#define IOCORE_TOML_TO(field) tbl.insert_or_assign(#field, obj.field);
-#define IOCORE_TOML_FROM(field)                                                 \
-	if (!tbl.contains(#field)) {                                            \
-		throw IOCore::Toml::TomlException("Missing field " #field);     \
-	}                                                                       \
-                                                                                \
-	obj.field = tbl[#field].value<decltype(obj.field)>().value();
+namespace IOCore::Toml {
+struct TomlException;
+struct Table;
+}
+
+template<typename T>
+void add_to_toml_table(toml::table& tbl, const char* fieldName, const T& obj);
+template<typename T>
+void extract_from_toml_table(
+    const toml::table& tbl, const char* fieldName, T& output
+);
+
+#define IOCORE_TOML_TO(field) add_to_toml_table(tbl, #field, obj.field);
+#define IOCORE_TOML_FROM(field) extract_from_toml_table(tbl, #field, obj.field);
 
 #define IOCORE_INIT_METADATA(T)                                                 \
 	auto metadata = toml::table();                                          \
@@ -34,14 +42,62 @@
 	const char* _class_name = #T;                                           \
 	friend void to_toml_table(toml::table& tbl, const T& obj)               \
 	{                                                                       \
-		IOCORE_INIT_METADATA(T)                                         \
-		IOCORE_FOREACH(IOCORE_TOML_TO, __VA_ARGS__)                     \
+		IOCORE_FOREACH_PARAM(IOCORE_TOML_TO, __VA_ARGS__)               \
 	}                                                                       \
-	friend void from_toml_table(const toml::table& table, T& obj)           \
+                                                                                \
+	friend void from_toml_table(const toml::table& tbl, T& obj)             \
 	{                                                                       \
-		auto tbl = table;                                               \
-		tbl.erase("General");                                           \
-		IOCORE_FOREACH(IOCORE_TOML_FROM, __VA_ARGS__)                   \
+		IOCORE_FOREACH_PARAM(IOCORE_TOML_FROM, __VA_ARGS__)             \
+	}
+
+#define IOCORE_TOML_ENUM(ENUM_TYPE, ...)                                        \
+	template<>                                                              \
+	void add_to_toml_table<ENUM_TYPE>(                                      \
+	    toml::table & tbl, const char* fieldName, const ENUM_TYPE& obj      \
+	)                                                                       \
+	{                                                                       \
+		static_assert(                                                  \
+		    std::is_enum<ENUM_TYPE>::value,                             \
+		    #ENUM_TYPE " must be an enum!"                              \
+		);                                                              \
+		using pair_t = std::pair<ENUM_TYPE, const char*>;               \
+		static const pair_t _enum_to_string[] = {                       \
+			IOCORE_FOREACH_ENUM_PARAM(                              \
+			    IOCORE_ENUM_FIELD, __VA_ARGS__                      \
+			)                                                       \
+		};                                                              \
+		auto it = std::find_if(                                         \
+		    std::begin(_enum_to_string),                                \
+		    std::end(_enum_to_string),                                  \
+		    [obj](const auto& pair) -> bool {                           \
+			    return pair.first == obj;                           \
+		    }                                                           \
+		);                                                              \
+		tbl.insert_or_assign(fieldName, it->second);                    \
+	}                                                                       \
+                                                                                \
+	template<>                                                              \
+	void extract_from_toml_table<ENUM_TYPE>(                                \
+	    const toml::table& tbl, const char* fieldName, ENUM_TYPE& obj       \
+	)                                                                       \
+	{                                                                       \
+		static_assert(                                                  \
+		    std::is_enum<ENUM_TYPE>::value,                             \
+		    #ENUM_TYPE " must be an enum!"                              \
+		);                                                              \
+		using pair_t = std::pair<ENUM_TYPE, const char*>;               \
+		static const pair_t _enum_to_string[] = {                       \
+			IOCORE_FOREACH_ENUM_PARAM(                              \
+			    IOCORE_ENUM_FIELD, __VA_ARGS__                      \
+			)                                                       \
+		};                                                              \
+		auto val = tbl[fieldName].value<std::string>().value();         \
+		for (const auto& [enum_val, str] : _enum_to_string) {           \
+			if (str == val) {                                       \
+				obj = enum_val;                                 \
+				break;                                          \
+			}                                                       \
+		}                                                               \
 	}
 
 namespace IOCore::Toml {
@@ -84,6 +140,24 @@ struct Table : public toml::table {
 		return *this;
 	}
 };
+}
+
+template<typename T>
+void add_to_toml_table(toml::table& tbl, const char* fieldName, const T& obj)
+{
+	tbl.insert_or_assign(fieldName, obj);
+}
+template<typename T>
+void extract_from_toml_table(
+    const toml::table& tbl, const char* fieldName, T& output
+)
+{
+	if (!tbl.contains(fieldName)) {
+		throw IOCore::Toml::TomlException(
+		    "Missing field " + std::string(fieldName)
+		);
+	}
+	output = tbl[fieldName].value<T>().value();
 }
 
 // clang-format off
