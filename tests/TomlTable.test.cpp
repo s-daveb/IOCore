@@ -15,9 +15,14 @@
 #include "../include/util/toml.hpp"
 
 enum Colors { Red, Green, Blue };
-IOCORE_TOML_ENUM(Colors, Red, Green, Blue);
 
-BEGIN_TEST_SUITE("Util.Toml")
+IOCORE_TOML_ENUM(Colors, Red, Green, Blue);
+//  IOCORE_TOML_ENUM(Colors, { Red, "Red" }, { Green, "Green" }, { Blue, "Blue"
+//  });
+
+using IOCore::TomlTable;
+
+BEGIN_TEST_SUITE("IOCore.TomlTable")
 {
 	struct SimpleStruct {
 		int field1;
@@ -36,28 +41,17 @@ BEGIN_TEST_SUITE("Util.Toml")
 		);
 	};
 
-	TEST_CASE("IOCORE_TOML_TO Macro works")
+	TEST_CASE("Toml::Table class construction and basic operators")
 	{
-		toml::table table;
-		SimpleStruct data;
-
-		to_toml_table(table, data);
-		REQUIRE(table.size() == 2);
-	}
-	TEST_CASE("IOCORE_TOML_SERIALIZABLE Macro works")
-	{
-		toml::table table;
-		ComplexStruct data = { 11, 22, Green };
-		ComplexStruct newdest;
-
-		to_toml_table(table, data);
-		from_toml_table(table, newdest);
+		auto data = ComplexStruct{ 11, 22, Blue };
+		TomlTable table = data;
+		auto newdest = table.as<ComplexStruct>();
 
 		CHECK(table.size() == 3);
 
 		CHECK(table["field1"].value<int>() == 11);
 		CHECK(table["field2"].value<int>() == 22);
-		CHECK(table["foreground"].value<std::string>() == "Green");
+		CHECK(table["foreground"].value<std::string>() == "Blue");
 
 		CHECK(newdest.field1 == data.field1);
 		CHECK(newdest.field2 == data.field2);

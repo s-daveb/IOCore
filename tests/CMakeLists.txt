@@ -6,6 +6,7 @@ add_executable(test-runner
 	Exception.test.cpp
 	Util.macros.test.cpp
 	Util.toml.test.cpp
+	TomlTable.test.cpp
 )
 
 target_include_directories(test-runner PRIVATE

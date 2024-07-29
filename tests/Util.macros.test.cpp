@@ -22,22 +22,20 @@ enum Colors { Red, Green, Blue };
 
 BEGIN_TEST_SUITE("Util.Macros")
 {
-	TEST_CASE("IOCORE_FOREACH_PARAM Macro works")
+	TEST_CASE("FOREACH_PARAM Macro works")
 	{
 		std::stringstream buffer;
 		int field1 = 10;
 		int field2 = 20;
 
-		IOCORE_FOREACH_PARAM(PRINT_MACRO, field1, field2);
+		FOREACH_PARAM(PRINT_MACRO, field1, field2);
 		REQUIRE(buffer.str() == "field1: 10, field2: 20, ");
 	}
 
-	TEST_CASE("IOCORE_FOREACH_ENUM_PARAM Macro works")
+	TEST_CASE("FOREACH_ENUM_PARAM Macro works")
 	{
 		std::pair<Colors, const std::string> color_pairs[] = {
-			IOCORE_FOREACH_ENUM_PARAM(
-			    IOCORE_ENUM_FIELD, Red, Green, Blue
-			)
+			FOREACH_ENUM_PARAM(TOML_ENUM_FIELD, Red, Green, Blue)
 		};
 
 		CHECK(std::size(color_pairs) == 3);
