@@ -62,7 +62,7 @@ void extract_from_toml_table(
 
 #define IOCORE_TOML_ENUM(ENUM_TYPE, ...)                                        \
 	template<>                                                              \
-	void add_to_toml_table<ENUM_TYPE>(                                      \
+	inline void add_to_toml_table<ENUM_TYPE>(                               \
 	    toml::table & tbl, const char* fieldName, const ENUM_TYPE& obj      \
 	)                                                                       \
 	{                                                                       \
@@ -85,7 +85,7 @@ void extract_from_toml_table(
 	}                                                                       \
                                                                                 \
 	template<>                                                              \
-	void extract_from_toml_table<ENUM_TYPE>(                                \
+	inline void extract_from_toml_table<ENUM_TYPE>(                         \
 	    const toml::table& tbl, const char* fieldName, ENUM_TYPE& obj       \
 	)                                                                       \
 	{                                                                       \
