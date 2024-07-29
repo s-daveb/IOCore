@@ -15,7 +15,7 @@ target_include_directories(test-runner PRIVATE
 
 target_link_libraries(test-runner
 PRIVATE
-	IOCoreStatic
+	IOCoreShared
 	Catch2::Catch2WithMain
 )
 
