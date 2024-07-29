@@ -8,6 +8,7 @@ list(PREPEND CMAKE_MODULE_PATH ${IOCore_CMAKE_SOURCE_DIR}/CMake)
 include(BuildProperties)
 include(DefaultConfig)
 
+
 project(IOCore
 	VERSION 0.2.25
 	LANGUAGES C CXX
@@ -15,13 +16,10 @@ project(IOCore
 	DESCRIPTION "A framework for application management, file IO, etc"
 )
 
-include(CPM)
+use_ccache()
+check_and_set_linker()
 
-option(USE_CCACHE
-	[=[Use ccache compiler cache to speed up builds.
-Enabled by default if ccache is found]=]
-ON
-)
+include(CPM)
 
 if( NOT CMAKE_BUILD_TYPE )
   SET( CMAKE_BUILD_TYPE Debug )
@@ -34,24 +32,6 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_C_EXTENSIONS OFF)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Search for the code caching compiler wrapper, ccache and enable it
-# if found. This will speed up repeated builds.
-if (USE_CCACHE)
-	message(CHECK_START "Detecting cacche")
-
-	find_program(CCACHE_PATH ccache)
-	if(CCACHE_PATH)
-  	  message(CHECK_PASS("found"))
-  	  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ${CCACHE_PATH})
-  	  set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ${CCACHE_PATH})
-	endif()
-
-	list(APPEND CMAKE_MESSAGE_INDENT " ")
-  	message(STATUS "(set -DUSE_CCACHE=Off to disable)")
-	list(POP_BACK CMAKE_MESSAGE_INDENT)
-endif()
-
-
 if (UNIX AND NOT(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux"))
 	option(USE_BOOST_STACKTRACE "Use Boost::stacktrace for stack traces" OFF)
 	option(USE_EXECINFO_STACKTRACE "Use BSD/UNIX execinfo for stack traces" ON)
@@ -59,7 +39,6 @@ else()
 	option(USE_BOOST_STACKTRACE "Use Boost::stacktrace for stack traces" ON)
 	option(USE_EXECINFO_STACKTRACE "Use BSD/UNIX execinfo for stack traces" OFF)
 endif()
-
 
 # enable compile_commands.json generation for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS On)
