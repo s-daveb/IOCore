@@ -10,10 +10,17 @@
 
 #include <nlohmann/json.hpp>
 
+#include "util/toml.hpp"
+
 /* NOLINTBEGIN(readability-identifier-length) */
 
-#define SERIALIZABLE(...) NLOHMANN_DEFINE_TYPE_INTRUSIVE(__VA_ARGS__)
-#define SERIALIZABLE_ENUM(...) NLOHMANN_JSON_SERIALIZE_ENUM(__VA_ARGS__)
+#define SERIALIZABLE(...)                                                       \
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(__VA_ARGS__)                             \
+	IOCORE_TOML_SERIALIZABLE(__VA_ARGS__)
+
+#define SERIALIZABLE_ENUM(...)                                                  \
+	NLOHMANN_JSON_SERIALIZE_ENUM(__VA_ARGS__)                               \
+	IOCORE_TOML_ENUM(__VA_ARGS__)
 
 /* NOLINTEND */
 
