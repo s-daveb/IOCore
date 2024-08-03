@@ -14,13 +14,11 @@
 
 /* NOLINTBEGIN(readability-identifier-length) */
 
-#define SERIALIZABLE(...)                                                       \
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE(__VA_ARGS__)                             \
-	IOCORE_TOML_SERIALIZABLE(__VA_ARGS__)
+#define JSON_SERIALIZABLE(...) NLOHMANN_DEFINE_TYPE_INTRUSIVE(__VA_ARGS__)
+#define JSON_SERIALIZABLE_ENUM(...) NLOHMANN_JSON_SERIALIZE_ENUM(__VA_ARGS__)
 
-#define SERIALIZABLE_ENUM(...)                                                  \
-	NLOHMANN_JSON_SERIALIZE_ENUM(__VA_ARGS__)                               \
-	IOCORE_TOML_ENUM(__VA_ARGS__)
+#define TOML_SERIALIZABLE(...) IOCORE_TOML_SERIALIZABLE(__VA_ARGS__)
+#define TOML_SERIALIZABLE_ENUM(...) IOCORE_TOML_ENUM(__VA_ARGS__)
 
 /* NOLINTEND */
 
