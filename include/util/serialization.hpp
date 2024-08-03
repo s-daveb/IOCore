@@ -10,7 +10,7 @@
 
 #include <nlohmann/json.hpp>
 
-#include "util/toml.hpp"
+#include "toml.hpp"
 
 /* NOLINTBEGIN(readability-identifier-length) */
 
