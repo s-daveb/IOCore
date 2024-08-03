@@ -49,7 +49,10 @@ void extract_from_toml_table(
 	tbl.insert_or_assign("General", metadata);
 
 #define IOCORE_TOML_SERIALIZABLE(T, ...)                                        \
-	const char* _class_name = #T;                                           \
+	static constexpr const char* _class_name()                              \
+	{                                                                       \
+		return #T;                                                      \
+	}                                                                       \
 	friend void to_toml_table(toml::table& tbl, const T& obj)               \
 	{                                                                       \
 		FOREACH_PARAM(IOCORE_TOML_TO, __VA_ARGS__)                      \
