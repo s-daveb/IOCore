@@ -12,12 +12,38 @@
 #include <algorithm>
 #include <initializer_list>
 #include <string>
+#include <type_traits>
 #include <utility>
 
 #include <toml++/toml.hpp>
 
 #include "../Exception.hpp"
 #include "./macros.hpp"
+
+/* NOLINTBEGIN */
+// Primary template, defaults to false
+template<typename T>
+struct is_toml_type : std::false_type {};
+
+// Specializations for TOML++ native types
+template<>
+struct is_toml_type<double> : std::true_type {};
+
+template<>
+struct is_toml_type<int64_t> : std::true_type {};
+
+template<>
+struct is_toml_type<bool> : std::true_type {};
+
+template<>
+struct is_toml_type<std::string> : std::true_type {};
+
+template<>
+struct is_toml_type<std::string_view> : std::true_type {};
+
+template<typename T>
+constexpr bool is_not_toml_native_t = is_toml_type<T>::value;
+/* NOLINTEND */
 
 namespace IOCore {
 struct TomlException : public Exception {
@@ -34,44 +60,80 @@ struct TomlException : public Exception {
 }
 
 template<typename T>
-void add_to_toml_table(toml::table& tbl, const char* fieldName, const T& obj);
+void insert_in_toml_table(toml::table& tbl, const char* fieldName, const T& obj);
 template<typename T>
 void extract_from_toml_table(
     const toml::table& tbl, const char* fieldName, T& output
 );
+template<typename T>
+auto to_toml_table(const T& obj) -> toml::table;
 
-#define IOCORE_TOML_TO(field) add_to_toml_table(tbl, #field, obj.field);
-#define IOCORE_TOML_FROM(field) extract_from_toml_table(tbl, #field, obj.field);
+template<typename T>
+void from_toml_table(const toml::table& tbl, T& result);
 
-#define TOML_INIT_METADATA(T)                                                   \
-	auto metadata = toml::table();                                          \
-	metadata.insert_or_assign("type", #T);                                  \
-	tbl.insert_or_assign("General", metadata);
+#define IOCORE_TOML_TO(field) insert_in_toml_table(tbl, #field, obj.field);
+#define IOCORE_TOML_FROM(field)                                                 \
+	extract_from_toml_table(tbl, #field, result.field);
 
-#define IOCORE_TOML_SERIALIZABLE(T, ...)                                        \
-	static constexpr const char* _class_name()                              \
+#define IOCORE_TOML_SERIALIZABLE(CLASS, ...)                                    \
+	static constexpr auto _class_name()->const char*                        \
 	{                                                                       \
-		return #T;                                                      \
+		return #CLASS;                                                  \
 	}                                                                       \
-	friend void to_toml_table(toml::table& tbl, const T& obj)               \
+	friend auto to_toml_table(const CLASS& obj)->toml::table                \
 	{                                                                       \
+		toml::table tbl;                                                \
 		FOREACH_PARAM(IOCORE_TOML_TO, __VA_ARGS__)                      \
+		return tbl;                                                     \
 	}                                                                       \
                                                                                 \
-	friend void from_toml_table(const toml::table& tbl, T& obj)             \
+	friend void from_toml_table(const toml::table& tbl, CLASS& result)      \
 	{                                                                       \
 		FOREACH_PARAM(IOCORE_TOML_FROM, __VA_ARGS__)                    \
 	}
 
+template<typename T>
+inline void
+insert_in_toml_table(toml::table& tbl, const char* fieldName, const T& obj)
+{
+	using value_type = std::decay_t<T>;
+
+	if constexpr (is_not_toml_native_t<value_type>) {
+		auto subtable = to_toml_table<T>(obj);
+		tbl.insert_or_assign(fieldName, subtable);
+	} else {
+
+		tbl.insert_or_assign(fieldName, obj);
+	}
+}
+template<typename T>
+inline void
+extract_from_toml_table(const toml::table& tbl, const char* fieldName, T& output)
+{
+	using value_type = std::decay_t<T>;
+
+	if (!tbl.contains(fieldName)) {
+		throw IOCore::TomlException(
+		    "Missing field " + std::string(fieldName)
+		);
+	}
+	if constexpr (is_not_toml_native_t<value_type>) {
+		auto subtable = *(tbl[fieldName].as_table());
+		from_toml_table<T>(subtable, output);
+	} else {
+		output = tbl[fieldName].value<T>().value();
+	}
+}
+
 #define IOCORE_TOML_ENUM(ENUM_TYPE, ...)                                        \
 	template<>                                                              \
-	inline void add_to_toml_table<ENUM_TYPE>(                               \
+	inline void insert_in_toml_table<ENUM_TYPE>(                            \
 	    toml::table & tbl, const char* fieldName, const ENUM_TYPE& obj      \
 	)                                                                       \
 	{                                                                       \
 		static_assert(                                                  \
 		    std::is_enum<ENUM_TYPE>::value,                             \
-		    #ENUM_TYPE " must be an enum!"                              \
+		    #ENUM_TYPE "must be an enum!"                               \
 		);                                                              \
 		using pair_t = std::pair<ENUM_TYPE, const char*>;               \
 		static const pair_t _enum_to_string[] = {                       \
@@ -108,24 +170,6 @@ void extract_from_toml_table(
 			}                                                       \
 		}                                                               \
 	}
-
-template<typename T>
-inline void
-add_to_toml_table(toml::table& tbl, const char* fieldName, const T& obj)
-{
-	tbl.insert_or_assign(fieldName, obj);
-}
-template<typename T>
-inline void
-extract_from_toml_table(const toml::table& tbl, const char* fieldName, T& output)
-{
-	if (!tbl.contains(fieldName)) {
-		throw IOCore::TomlException(
-		    "Missing field " + std::string(fieldName)
-		);
-	}
-	output = tbl[fieldName].value<T>().value();
-}
 
 // clang-format off
 // vim: set foldmethod=marker foldmarker=@{,@} foldminlines=10 textwidth=80 ts=8 sts=0 sw=8 noexpandtab ft=cpp.doxygen :

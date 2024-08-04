@@ -11,7 +11,6 @@
 
 #include "test-utils/common.hpp"
 
-#include "../include/TomlTable.hpp"
 #include "../include/util/toml.hpp"
 
 enum Colors { Red, Green, Blue };
@@ -38,11 +37,12 @@ BEGIN_TEST_SUITE("Util.Toml")
 
 	TEST_CASE("IOCORE_TOML_TO Macro works")
 	{
-		toml::table table;
-		SimpleStruct data;
+		toml::table tbl;
+		SimpleStruct obj;
 
-		to_toml_table(table, data);
-		REQUIRE(table.size() == 2);
+		IOCORE_TOML_TO(field1);
+		IOCORE_TOML_TO(field2);
+		REQUIRE(tbl.size() == 2);
 	}
 	TEST_CASE("IOCORE_TOML_SERIALIZABLE Macro works")
 	{
@@ -50,7 +50,7 @@ BEGIN_TEST_SUITE("Util.Toml")
 		ComplexStruct data = { 11, 22, Green };
 		ComplexStruct newdest;
 
-		to_toml_table(table, data);
+		table = to_toml_table(data);
 		from_toml_table(table, newdest);
 
 		CHECK(table.size() == 3);

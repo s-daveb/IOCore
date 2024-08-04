@@ -22,22 +22,21 @@ struct TomlTable : public toml::table {
 	TomlTable(TomlTable&& tbl) noexcept : toml::table(std::move(tbl)) {}
 
 	template<typename T>
-	TomlTable(const T& obj)
+	TomlTable(const T& obj) : toml::table(to_toml_table(obj))
 	{
-		to_toml_table(*this, obj);
 	}
 
 	template<typename T>
 	auto operator=(const T& obj) -> TomlTable&
 	{
-		to_toml_table(*this, obj);
+		toml::table::operator=(to_toml_table(obj));
 		return *this;
 	}
 
 	template<typename T>
 	auto operator=(T&& obj) -> TomlTable&
 	{
-		to_toml_table(*this, obj);
+		toml::table::operator=(std::move(to_toml_table(obj)));
 		return *this;
 	}
 

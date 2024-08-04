@@ -17,12 +17,10 @@
 enum Colors { Red, Green, Blue };
 
 IOCORE_TOML_ENUM(Colors, Red, Green, Blue);
-//  IOCORE_TOML_ENUM(Colors, { Red, "Red" }, { Green, "Green" }, { Blue, "Blue"
-//  });
 
 using IOCore::TomlTable;
 
-BEGIN_TEST_SUITE("IOCore.TomlTable")
+BEGIN_TEST_SUITE("IOCore::TomlTable")
 {
 	struct SimpleStruct {
 		int field1;
@@ -41,7 +39,12 @@ BEGIN_TEST_SUITE("IOCore.TomlTable")
 		);
 	};
 
-	TEST_CASE("Toml::Table class construction and basic operators")
+	TEST_CASE("IOCore::TomlTable class construction")
+	{
+		TomlTable table;
+	}
+
+	TEST_CASE("IOCore::TomlTable core operators")
 	{
 		auto data = ComplexStruct{ 11, 22, Blue };
 		TomlTable table = data;
