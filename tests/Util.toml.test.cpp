@@ -24,15 +24,27 @@ BEGIN_TEST_SUITE("Util.Toml")
 
 		IOCORE_TOML_SERIALIZABLE(SimpleStruct, field1, field2);
 	};
+	struct SimpleStruct2 {
+		int fieldA;
 
-	struct ComplexStruct {
+		IOCORE_TOML_SERIALIZABLE(SimpleStruct2, fieldA);
+	};
+
+	struct StructWithEnum {
 		int field1;
 		int field2;
 		Colors foreground;
 
 		IOCORE_TOML_SERIALIZABLE(
-		    ComplexStruct, field1, field2, foreground
+		    StructWithEnum, field1, field2, foreground
 		);
+	};
+
+	struct CompositeStruct {
+		SimpleStruct part1;
+		SimpleStruct2 part2;
+
+		IOCORE_TOML_SERIALIZABLE(CompositeStruct, part1, part2);
 	};
 
 	TEST_CASE("IOCORE_TOML_TO Macro works")
@@ -44,11 +56,28 @@ BEGIN_TEST_SUITE("Util.Toml")
 		IOCORE_TOML_TO(field2);
 		REQUIRE(tbl.size() == 2);
 	}
-	TEST_CASE("IOCORE_TOML_SERIALIZABLE Macro works")
+	TEST_CASE("IOCORE_TOML_SERIALIZABLE Macro works with SimpleStruct")
 	{
 		toml::table table;
-		ComplexStruct data = { 11, 22, Green };
-		ComplexStruct newdest;
+		SimpleStruct data = { 10, 20 };
+		SimpleStruct newdest;
+
+		table = to_toml_table(data);
+		from_toml_table(table, newdest);
+
+		CHECK(table.size() == 2);
+
+		CHECK(table["field1"].value<int>() == 10);
+		CHECK(table["field2"].value<int>() == 20);
+
+		CHECK(newdest.field1 == data.field1);
+		CHECK(newdest.field2 == data.field2);
+	}
+	TEST_CASE("IOCORE_TOML_SERIALIZABLE Macro works with StructWithEnum")
+	{
+		toml::table table;
+		StructWithEnum data = { 11, 22, Green };
+		StructWithEnum newdest;
 
 		table = to_toml_table(data);
 		from_toml_table(table, newdest);
@@ -62,6 +91,29 @@ BEGIN_TEST_SUITE("Util.Toml")
 		CHECK(newdest.field1 == data.field1);
 		CHECK(newdest.field2 == data.field2);
 		CHECK(newdest.foreground == data.foreground);
+	}
+
+	TEST_CASE("IOCORE_TOML_SERIALIZABLE Macro works with CompositeStruct")
+	{
+		toml::table table;
+		CompositeStruct data = { { 10, 20 }, { 30 } };
+		CompositeStruct newdest;
+
+		table = to_toml_table(data);
+		from_toml_table(table, newdest);
+
+		CHECK(table.size() == 2);
+
+		CHECK(table["part1"].as_table()->size() == 2);
+		CHECK(table["part2"].as_table()->size() == 1);
+
+		CHECK(table["part1"]["field1"].value<int>() == 10);
+		CHECK(table["part1"]["field2"].value<int>() == 20);
+		CHECK(table["part2"]["fieldA"].value<int>() == 30);
+
+		CHECK(newdest.part1.field1 == data.part1.field1);
+		CHECK(newdest.part1.field2 == data.part1.field2);
+		CHECK(newdest.part2.fieldA == data.part2.fieldA);
 	}
 }
 

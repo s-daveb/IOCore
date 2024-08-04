@@ -98,8 +98,8 @@ insert_in_toml_table(toml::table& tbl, const char* fieldName, const T& obj)
 {
 	using value_type = std::decay_t<T>;
 
-	if constexpr (is_not_toml_native_t<value_type>) {
-		auto subtable = to_toml_table<T>(obj);
+	if constexpr (is_not_toml_native_t<value_type> || std::is_class_v<value_type>) {
+		auto subtable = to_toml_table(obj);
 		tbl.insert_or_assign(fieldName, subtable);
 	} else {
 
@@ -117,9 +117,9 @@ extract_from_toml_table(const toml::table& tbl, const char* fieldName, T& output
 		    "Missing field " + std::string(fieldName)
 		);
 	}
-	if constexpr (is_not_toml_native_t<value_type>) {
+	if constexpr (is_not_toml_native_t<value_type> || std::is_class_v<value_type>) {
 		auto subtable = *(tbl[fieldName].as_table());
-		from_toml_table<T>(subtable, output);
+		from_toml_table(subtable, output);
 	} else {
 		output = tbl[fieldName].value<T>().value();
 	}
