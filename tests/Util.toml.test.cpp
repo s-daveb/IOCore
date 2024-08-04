@@ -47,6 +47,16 @@ BEGIN_TEST_SUITE("Util.Toml")
 		IOCORE_TOML_SERIALIZABLE(CompositeStruct, part1, part2);
 	};
 
+	struct ComplexStruct {
+		SimpleStruct part1;
+		SimpleStruct2 part2;
+		StructWithEnum part3;
+		Colors background;
+
+		IOCORE_TOML_SERIALIZABLE(
+		    ComplexStruct, part1, part2, part3, background
+		);
+	};
 	TEST_CASE("IOCORE_TOML_TO Macro works")
 	{
 		toml::table tbl;
@@ -115,7 +125,40 @@ BEGIN_TEST_SUITE("Util.Toml")
 		CHECK(newdest.part1.field2 == data.part1.field2);
 		CHECK(newdest.part2.fieldA == data.part2.fieldA);
 	}
-}
+	TEST_CASE("IOCORE_TOML_SERIALIZABLE Macro works with ComplexStruct")
+	{
+		toml::table table;
+		ComplexStruct data = {
+			{ 10, 20 }, { 30 }, { 40, 50, Blue }, Red
+		};
+		ComplexStruct newdest;
 
+		table = to_toml_table(data);
+		from_toml_table(table, newdest);
+
+		CHECK(table.size() == 4);
+
+		CHECK(table["part1"].as_table()->size() == 2);
+		CHECK(table["part2"].as_table()->size() == 1);
+		CHECK(table["part3"].as_table()->size() == 3);
+
+		CHECK(table["part1"]["field1"].value<int>() == 10);
+		CHECK(table["part1"]["field2"].value<int>() == 20);
+		CHECK(table["part2"]["fieldA"].value<int>() == 30);
+		CHECK(table["part3"]["field1"].value<int>() == 40);
+		CHECK(table["part3"]["field2"].value<int>() == 50);
+		CHECK(
+		    table["part3"]["foreground"].value<std::string>() == "Blue"
+		);
+
+		CHECK(newdest.part1.field1 == data.part1.field1);
+		CHECK(newdest.part1.field2 == data.part1.field2);
+		CHECK(newdest.part2.fieldA == data.part2.fieldA);
+		CHECK(newdest.part3.field1 == data.part3.field1);
+		CHECK(newdest.part3.field2 == data.part3.field2);
+		CHECK(newdest.part3.foreground == data.part3.foreground);
+		CHECK(newdest.background == data.background);
+	}
+}
 // clang-format off
 // vim: set foldmethod=syntax foldminlines=10 textwidth=80 ts=8 sts=0 sw=8 noexpandtab ft=cpp.doxygen :

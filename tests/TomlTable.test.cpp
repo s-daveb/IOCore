@@ -26,11 +26,16 @@ BEGIN_TEST_SUITE("IOCore::TomlTable")
 		int field1;
 		int field2;
 
+		auto operator==(const SimpleStruct& other) const -> bool
+		{
+			return field1 == other.field1 && field2 == other.field2;
+		}
+
 		IOCORE_TOML_SERIALIZABLE(SimpleStruct, field1, field2);
 	};
 
 	struct ComplexStruct {
-		int field1;
+		SimpleStruct field1;
 		int field2;
 		Colors foreground;
 
@@ -46,14 +51,15 @@ BEGIN_TEST_SUITE("IOCore::TomlTable")
 
 	TEST_CASE("IOCore::TomlTable core operators")
 	{
-		auto data = ComplexStruct{ 11, 22, Blue };
+		auto data = ComplexStruct{ { 11, 22 }, 30, Blue };
 		TomlTable table = data;
 		auto newdest = table.as<ComplexStruct>();
 
 		CHECK(table.size() == 3);
 
-		CHECK(table["field1"].value<int>() == 11);
-		CHECK(table["field2"].value<int>() == 22);
+		CHECK(table["field1"]["field1"].value<int>() == 11);
+		CHECK(table["field1"]["field2"].value<int>() == 22);
+		CHECK(table["field2"].value<int>() == 30);
 		CHECK(table["foreground"].value<std::string>() == "Blue");
 
 		CHECK(newdest.field1 == data.field1);
