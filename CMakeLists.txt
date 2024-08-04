@@ -8,7 +8,6 @@ list(PREPEND CMAKE_MODULE_PATH ${IOCore_CMAKE_SOURCE_DIR}/CMake)
 include(BuildProperties)
 include(DefaultConfig)
 
-
 project(IOCore
 	VERSION 0.2.25
 	LANGUAGES C CXX
