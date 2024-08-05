@@ -4,6 +4,7 @@ add_library(IOCore OBJECT
 	Exception.cpp
 	FileResource.cpp
 	debuginfo.cpp
+	JsonConfigFile.cpp
 )
 set_target_properties(IOCore PROPERTIES
 	POSITION_INDEPENDENT_CODE ON
@@ -22,7 +23,8 @@ if (USE_BOOST_STACKTRACE)
 endif()
 
 set(IOCORE_HEADER_LIBS
-	fmt::fmt-header-only 
+	fmt::fmt-header-only
+	nlohmann_json::nlohmann_json
 )
 
 set(IOCORE_DEP_LIBS
