@@ -1,5 +1,5 @@
-/* JsonConfigFile.test.cpp
- *
+/* TomlConfigFile.test.cpp
+ * }
  * Copyright © 2024 Saul D. Beniquez
  * License: Mozilla Public License v. 2.0
  *
@@ -8,7 +8,7 @@
  * obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-#include "IOCore/JsonConfigFile.hpp"
+#include "IOCore/TomlConfigFile.hpp"
 #include "IOCore/Exception.hpp"
 
 #include "IOCore/sys/debuginfo.hpp"
@@ -23,44 +23,42 @@
 
 #include <nlohmann/json.hpp>
 
-using namespace IOCore;
-
 namespace fs = std::filesystem;
 
 constexpr c::const_string kINPUT_FILE_PATH = "/tmp/test_config.json";
 constexpr c::const_string kBADFILE_PATH = "/tmp/test_bad_config.json";
 constexpr c::const_string kNON_EXISTENT_PATH = "/hades/tmp/dne/file.json";
 
-namespace fixtures {
-struct SampleFileGenerator {
-	SampleFileGenerator()
-	{
-		if (!fs::exists(kINPUT_FILE_PATH)) {
-			std::ofstream new_file(
-			    kINPUT_FILE_PATH, std::ios::out | std::ios::trunc
-			);
-			new_file << R"({"key1": "value1", "key2": "value2"})"
-				 << std::endl;
-			new_file.close();
-		}
-	}
-	~SampleFileGenerator()
-	{
-		try {
-			if (fs::exists(kINPUT_FILE_PATH)) {
-				fs::remove(kINPUT_FILE_PATH);
-			}
-		} catch (std::exception& e) {
-			DEBUG_PRINT(e.what());
-		}
-	}
-};
-}
-
-using TestFixture = fixtures::SampleFileGenerator;
-
-BEGIN_TEST_SUITE("elemental::JsonConfigFile")
+BEGIN_TEST_SUITE("elemental::TomlConfigFile")
 {
+	namespace { // Test fixtures
+	struct SampleFileGenerator {
+		SampleFileGenerator()
+		{
+			if (!fs::exists(kINPUT_FILE_PATH)) {
+				std::ofstream new_file(
+				    kINPUT_FILE_PATH,
+				    std::ios::out | std::ios::trunc
+				);
+				new_file
+				    << R"({"key1": "value1", "key2": "value2"})"
+				    << std::endl;
+				new_file.close();
+			}
+		}
+		~SampleFileGenerator()
+		{
+			try {
+				if (fs::exists(kINPUT_FILE_PATH)) {
+					fs::remove(kINPUT_FILE_PATH);
+				}
+			} catch (std::exception& e) {
+				DBG_PRINT(e.what());
+			}
+		}
+	};
+	using TestFixture = SampleFileGenerator;
+	} // anonymous namespace
 
 	TEST("elemental::nlohmann::json is serializablable like "
 	     "std::map<std::string,std::string>")
@@ -84,30 +82,30 @@ BEGIN_TEST_SUITE("elemental::JsonConfigFile")
 		);
 	}
 
-	FIXTURE_TEST("JsonConfigFile construction")
+	FIXTURE_TEST("TomlConfigFile construction")
 	{
-		SECTION("JsonConfigFile w/ valid path")
+		SECTION("TomlConfigFile w/ valid path")
 		{
-			auto config = JsonConfigFile(kINPUT_FILE_PATH);
-			auto& config_data = config.getJsonData();
+			auto config = TomlConfigFile(kINPUT_FILE_PATH);
+			auto& config_data = config.jsonDataRef();
 
 			REQUIRE(config_data.empty());
 		}
-		SECTION("JsonConfigFile w/ invalid path throws exception")
+		SECTION("TomlConfigFile w/ invalid path throws exception")
 		{
 
 			REQUIRE_THROWS_AS(
-			    JsonConfigFile(kNON_EXISTENT_PATH),
+			    TomlConfigFile(kNON_EXISTENT_PATH),
 			    IOCore::UnreachablePathException
 			);
 		}
 	}
-	FIXTURE_TEST("JsonConfigFile::Read")
+	FIXTURE_TEST("TomlConfigFile::Read")
 	{
-		auto config_file = JsonConfigFile(kINPUT_FILE_PATH);
-		auto& json_data = config_file.getJsonData();
+		auto config_file = TomlConfigFile(kINPUT_FILE_PATH);
+		auto& json_data = config_file.jsonDataRef();
 
-		SECTION("JsonConfigFile::Read w/ valid file")
+		SECTION("TomlConfigFile::Read w/ valid file")
 		{
 			config_file.read();
 			REQUIRE_FALSE(json_data.empty());
@@ -116,7 +114,7 @@ BEGIN_TEST_SUITE("elemental::JsonConfigFile")
 			REQUIRE(json_data["key1"] == "value1");
 			REQUIRE(json_data["key2"] == "value2");
 		}
-		SECTION("JsonConfigFile::Read w/ bad file throws exception")
+		SECTION("TomlConfigFile::Read w/ bad file throws exception")
 		{
 			if (!fs::exists(kBADFILE_PATH)) {
 				std::ofstream fileout(kBADFILE_PATH);
@@ -126,7 +124,7 @@ BEGIN_TEST_SUITE("elemental::JsonConfigFile")
 			REQUIRE_THROWS_AS(
 			    [&]() {
 				    auto bad_config =
-					JsonConfigFile(kBADFILE_PATH);
+					TomlConfigFile(kBADFILE_PATH);
 
 				    bad_config.read();
 			    }(),
@@ -137,12 +135,12 @@ BEGIN_TEST_SUITE("elemental::JsonConfigFile")
 			fs::remove(kBADFILE_PATH);
 		}
 	}
-	TEST("JsonConfigFile::Write()")
+	TEST("TomlConfigFile::Write()")
 	{
 		SECTION("Create File and Read It back In")
 		{
-			auto config_file = JsonConfigFile(kINPUT_FILE_PATH);
-			auto& test_data = config_file.getJsonData();
+			auto config_file = TomlConfigFile(kINPUT_FILE_PATH);
+			auto& test_data = config_file.jsonDataRef();
 
 			test_data["one"] = "1";
 			test_data["resolution"] = "1280x720";
@@ -174,11 +172,11 @@ BEGIN_TEST_SUITE("elemental::JsonConfigFile")
 	}
 
 	FIXTURE_TEST(
-	    "JsonConfigFile::Get<T>() basically wraps nlohmann::json::get<T>()"
+	    "TomlConfigFile::Get<T>() basically wraps nlohmann::json::get<T>()"
 	)
 	{
-		auto config_file = JsonConfigFile(kINPUT_FILE_PATH);
-		auto& json_data = config_file.getJsonData();
+		auto config_file = TomlConfigFile(kINPUT_FILE_PATH);
+		auto& json_data = config_file.jsonDataRef();
 
 		config_file.read();
 		auto obtained_data =
@@ -188,10 +186,10 @@ BEGIN_TEST_SUITE("elemental::JsonConfigFile")
 		REQUIRE(obtained_data["key2"] == "value2");
 	}
 	FIXTURE_TEST(
-	    "JsonConfigFile::Set() basically wraps nlohmann::json::operator=()"
+	    "TomlConfigFile::Set() basically wraps nlohmann::json::operator=()"
 	)
 	{
-		auto config_file = JsonConfigFile(kINPUT_FILE_PATH);
+		auto config_file = TomlConfigFile(kINPUT_FILE_PATH);
 		IOCore::Dictionary<std::string> test_data;
 
 		test_data["one"] = "1";
@@ -200,7 +198,7 @@ BEGIN_TEST_SUITE("elemental::JsonConfigFile")
 
 		config_file.set(test_data);
 
-		auto& json_data = config_file.getJsonData();
+		auto& json_data = config_file.jsonDataRef();
 
 		REQUIRE(json_data["one"] == test_data["one"]);
 		REQUIRE(json_data["resolution"] == test_data["resolution"]);

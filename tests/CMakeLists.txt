@@ -7,6 +7,8 @@ add_executable(test-runner
 	FileResource.test.cpp
 	Exception.test.cpp
 	TomlTable.test.cpp
+	JsonConfigFile.test.cpp
+	#TomlConfig.test.cpp
 )
 
 target_include_directories(test-runner PRIVATE
