@@ -63,15 +63,18 @@ CheckOptions:
 	- { key: readability-identifier-naming.PrivateMemberCase,  value: lower_case }
 
 	# Constants and Enum Values
-	- { key: readability-identifier-naming.ConstantPrefix,   value: 'k' }
-	- { key: readability-identifier-naming.ConstantCase,     value: CamelCase }
+	- { key: readability-identifier-naming.LocalConstantPrefix,   value: 'k' }
+	- { key: readability-identifier-naming.LocalConstantCase,     value: CamelCase }
+	- { key: readability-identifier-naming.GlobalConstantPrefix,   value: 'k' }
+	- { key: readability-identifier-naming.GlobalConstantCase,     value: CamelCase }
 
 	- { key: readability-identifier-naming.EnumConstantPrefix, value: '' }
 	- { key: readability-identifier-naming.EnumConstantCase,   value: CamelCase }
 
 	# Constant Expression
-	- { key: readability-identifier-naming.ConstexprVariablePrefix, value: 'k' }
-	- { key: readability-identifier-naming.ConstexprVariableCase,   value: Camel_Snake_Case }
+	- { key: readability-identifier-naming.ConstexprVariablePrefix, value: '' }
+	- { key: readability-identifier-naming.ConstexprVariableCase,   value: lower_case }
+	- { key: readability-identifier-naming.ConstexprVariableSuffix, value: '_t' }
 
 	- { key: readability-identifier-naming.ConstexprFunctionCase, value: Camel_Snake_Case }
 	- { key: readability-identifier-naming.ConstexprMethodCase,   value: Camel_Snake_Case }
