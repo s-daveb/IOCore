@@ -69,8 +69,7 @@ void extract_from_toml_table(
 template<typename T>
 auto to_toml_table(const T& obj) -> toml::table
 {
-	toml::table result;
-	result = to_toml_table(obj);
+	auto result = to_toml_table(obj);
 	return result;
 }
 template<typename T>
