@@ -20,30 +20,8 @@
 #include "../Exception.hpp"
 #include "./macros.hpp"
 
-/* NOLINTBEGIN */
-// Primary template, defaults to false
 template<typename T>
-struct is_toml_type : std::false_type {};
-
-// Specializations for TOML++ native types
-template<>
-struct is_toml_type<double> : std::true_type {};
-
-template<>
-struct is_toml_type<int64_t> : std::true_type {};
-
-template<>
-struct is_toml_type<bool> : std::true_type {};
-
-template<>
-struct is_toml_type<std::string> : std::true_type {};
-
-template<>
-struct is_toml_type<std::string_view> : std::true_type {};
-
-template<typename T>
-constexpr bool is_not_toml_native_t = is_toml_type<T>::value;
-/* NOLINTEND */
+constexpr bool is_toml_type_t = toml::impl::can_partially_represent_native<T>;
 
 namespace IOCore {
 struct TomlException : public Exception {
@@ -102,12 +80,11 @@ inline void insert_element(toml::table& tbl, const char* fieldName, const T& obj
 {
 	using value_type = std::decay_t<T>;
 
-	if constexpr (is_not_toml_native_t<value_type> || std::is_class_v<value_type>) {
+	if constexpr (is_toml_type_t<value_type>) {
+		tbl.insert_or_assign(fieldName, obj);
+	} else {
 		auto subtable = to_toml_table(obj);
 		tbl.insert_or_assign(fieldName, subtable);
-	} else {
-
-		tbl.insert_or_assign(fieldName, obj);
 	}
 }
 template<typename T>
@@ -121,11 +98,11 @@ extract_element(const toml::table& tbl, const char* fieldName, T& output)
 		    "Missing field " + std::string(fieldName)
 		);
 	}
-	if constexpr (is_not_toml_native_t<value_type> || std::is_class_v<value_type>) {
+	if constexpr (is_toml_type_t<value_type>) {
+		output = tbl[fieldName].value<value_type>().value();
+	} else {
 		auto subtable = *(tbl[fieldName].as_table());
 		from_toml_table(subtable, output);
-	} else {
-		output = tbl[fieldName].value<T>().value();
 	}
 }
 

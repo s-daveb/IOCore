@@ -15,7 +15,6 @@
 #include "../include/util/toml.hpp"
 
 enum Colors { Red, Green, Blue };
-
 IOCORE_TOML_ENUM(Colors, Red, Green, Blue);
 
 using IOCore::TomlTable;
@@ -33,6 +32,19 @@ BEGIN_TEST_SUITE("IOCore::TomlTable")
 
 		IOCORE_TOML_SERIALIZABLE(SimpleStruct, field1, field2);
 	};
+	struct SimpleStruct2 {
+		int field1;
+		int field2;
+		std::string label;
+
+		auto operator==(const SimpleStruct2& other) const -> bool
+		{
+			return label == other.label && field1 == other.field1 &&
+			       field2 == other.field2;
+		}
+
+		IOCORE_TOML_SERIALIZABLE(SimpleStruct2, field1, field2, label);
+	};
 
 	struct ComplexStruct {
 		SimpleStruct field1;
@@ -48,8 +60,18 @@ BEGIN_TEST_SUITE("IOCore::TomlTable")
 	{
 		TomlTable table;
 	}
+	TEST_CASE("IOCore::TomlTable core operators, simple struct")
+	{
+		auto data = SimpleStruct2{ 11, 22, "Hello" };
+		TomlTable table = data;
 
-	TEST_CASE("IOCore::TomlTable core operators")
+		CHECK(table.size() == 3);
+
+		CHECK(table["field1"].value<int>() == 11);
+		CHECK(table["field2"].value<int>() == 22);
+		REQUIRE(table["label"].value<std::string>() == "Hello");
+	}
+	TEST_CASE("IOCore::TomlTable core operators complex struct")
 	{
 		auto data = ComplexStruct{ { 11, 22 }, 30, Blue };
 		TomlTable table = data;
