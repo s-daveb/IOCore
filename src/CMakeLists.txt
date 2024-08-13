@@ -27,9 +27,8 @@ endif()
 set(IOCORE_HEADER_LIBS
 	fmt::fmt-header-only
 	nlohmann_json::nlohmann_json
+	tomlplusplus::tomlplusplus
 )
-
-
 
 set(IOCORE_DEP_LIBS
 	${STACKTRACE_DEP_LIBS}
