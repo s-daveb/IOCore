@@ -60,11 +60,9 @@ struct TomlException : public Exception {
 }
 
 template<typename T>
-void insert_in_toml_table(toml::table& tbl, const char* fieldName, const T& obj);
+void insert_element(toml::table& tbl, const char* fieldName, const T& obj);
 template<typename T>
-void extract_from_toml_table(
-    const toml::table& tbl, const char* fieldName, T& output
-);
+void extract_element(const toml::table& tbl, const char* fieldName, T& output);
 
 template<typename T>
 auto to_toml_table(const T& obj) -> toml::table
@@ -78,9 +76,8 @@ void from_toml_table(const toml::table& tbl, T& result)
 	from_toml_table_impl(tbl, result);
 }
 
-#define IOCORE_TOML_TO(field) insert_in_toml_table(tbl, #field, obj.field);
-#define IOCORE_TOML_FROM(field)                                                 \
-	extract_from_toml_table(tbl, #field, result.field);
+#define IOCORE_TOML_TO(field) insert_element(tbl, #field, obj.field);
+#define IOCORE_TOML_FROM(field) extract_element(tbl, #field, result.field);
 
 #define IOCORE_TOML_SERIALIZABLE(CLASS, ...)                                    \
 	static constexpr auto _class_name()->const char*                        \
@@ -101,8 +98,7 @@ void from_toml_table(const toml::table& tbl, T& result)
 	}
 
 template<typename T>
-inline void
-insert_in_toml_table(toml::table& tbl, const char* fieldName, const T& obj)
+inline void insert_element(toml::table& tbl, const char* fieldName, const T& obj)
 {
 	using value_type = std::decay_t<T>;
 
@@ -116,7 +112,7 @@ insert_in_toml_table(toml::table& tbl, const char* fieldName, const T& obj)
 }
 template<typename T>
 inline void
-extract_from_toml_table(const toml::table& tbl, const char* fieldName, T& output)
+extract_element(const toml::table& tbl, const char* fieldName, T& output)
 {
 	using value_type = std::decay_t<T>;
 
@@ -135,7 +131,7 @@ extract_from_toml_table(const toml::table& tbl, const char* fieldName, T& output
 
 #define IOCORE_TOML_ENUM(ENUM_TYPE, ...)                                        \
 	template<>                                                              \
-	inline void insert_in_toml_table<ENUM_TYPE>(                            \
+	inline void insert_element<ENUM_TYPE>(                                  \
 	    toml::table & tbl, const char* fieldName, const ENUM_TYPE& obj      \
 	)                                                                       \
 	{                                                                       \
@@ -158,7 +154,7 @@ extract_from_toml_table(const toml::table& tbl, const char* fieldName, T& output
 	}                                                                       \
                                                                                 \
 	template<>                                                              \
-	inline void extract_from_toml_table<ENUM_TYPE>(                         \
+	inline void extract_element<ENUM_TYPE>(                                 \
 	    const toml::table& tbl, const char* fieldName, ENUM_TYPE& obj       \
 	)                                                                       \
 	{                                                                       \
