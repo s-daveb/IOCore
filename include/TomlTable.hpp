@@ -26,17 +26,32 @@ struct TomlTable : public toml::table {
 	{
 	}
 
+	// Copy assignment
 	template<typename T>
 	auto operator=(const T& obj) -> TomlTable&
 	{
-		toml::table::operator=(to_toml_table(obj));
+		toml::table::operator=(to_toml_table<T>(obj));
 		return *this;
 	}
-
+	// Copy assignment template override for toml::table
+	template<>
+	auto operator=<toml::table>(const toml::table& tbl) -> TomlTable&
+	{
+		toml::table::operator=(tbl);
+		return *this;
+	}
+	// Move assignment
 	template<typename T>
 	auto operator=(T&& obj) -> TomlTable&
 	{
 		toml::table::operator=(std::move(to_toml_table(obj)));
+		return *this;
+	}
+	// Move assignment template override for toml::table
+	template<>
+	auto operator=<toml::table>(toml::table&& tbl) -> TomlTable&
+	{
+		toml::table::operator=(std::move(tbl));
 		return *this;
 	}
 
@@ -47,8 +62,29 @@ struct TomlTable : public toml::table {
 		from_toml_table(*this, retval);
 		return retval;
 	}
+
+	template<typename T>
+	inline auto get() -> T
+	{
+		return this->as<T>();
+	}
 };
 
+inline auto operator<<(std::ostream& output_stream, const TomlTable& table)
+    -> std::ostream&
+{
+	output_stream << static_cast<toml::table>(table);
+	return output_stream;
+}
+
+inline auto operator>>(const std::istream& input_stream, TomlTable& table)
+    -> const std::istream&
+{
+	std::stringstream buffer;
+	buffer << input_stream.rdbuf();
+	table = toml::parse(buffer.str());
+	return input_stream;
+}
 }
 // clang-format off
 // vim: set foldmethod=syntax foldminlines=10 textwidth=80 ts=8 sts=0 sw=8 noexpandtab ft=cpp.doxygen :

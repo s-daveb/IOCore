@@ -5,7 +5,9 @@ add_library(IOCore OBJECT
 	FileResource.cpp
 	debuginfo.cpp
 	JsonConfigFile.cpp
+	TomlConfigFile.cpp
 )
+
 set_target_properties(IOCore PROPERTIES
 	POSITION_INDEPENDENT_CODE ON
 )
@@ -26,6 +28,8 @@ set(IOCORE_HEADER_LIBS
 	fmt::fmt-header-only
 	nlohmann_json::nlohmann_json
 )
+
+
 
 set(IOCORE_DEP_LIBS
 	${STACKTRACE_DEP_LIBS}
