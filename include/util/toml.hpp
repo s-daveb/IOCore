@@ -65,9 +65,9 @@ template<typename T>
 void extract_from_toml_table(
     const toml::table& tbl, const char* fieldName, T& output
 );
+
 template<typename T>
 auto to_toml_table(const T& obj) -> toml::table;
-
 template<typename T>
 void from_toml_table(const toml::table& tbl, T& result);
 
@@ -80,6 +80,7 @@ void from_toml_table(const toml::table& tbl, T& result);
 	{                                                                       \
 		return #CLASS;                                                  \
 	}                                                                       \
+                                                                                \
 	friend auto to_toml_table(const CLASS& obj)->toml::table                \
 	{                                                                       \
 		toml::table tbl;                                                \

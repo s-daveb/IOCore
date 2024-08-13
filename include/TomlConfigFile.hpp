@@ -26,9 +26,14 @@ class TomlConfigFile : public FileResource {
 	void write();
 
 	template<typename T>
+	[[nodiscard]] auto as() const -> T
+	{
+		return config_toml.as<T>();
+	}
+	template<typename T>
 	[[nodiscard]] auto get() const -> T
 	{
-		return config_toml.value<T>().value();
+		return TomlConfigFile::as<T>();
 	}
 
 	template<typename T>

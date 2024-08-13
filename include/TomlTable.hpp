@@ -30,7 +30,8 @@ struct TomlTable : public toml::table {
 	template<typename T>
 	auto operator=(const T& obj) -> TomlTable&
 	{
-		toml::table::operator=(to_toml_table<T>(obj));
+		auto value = to_toml_table(obj);
+		toml::table::operator=(value);
 		return *this;
 	}
 
@@ -38,12 +39,13 @@ struct TomlTable : public toml::table {
 	template<typename T>
 	auto operator=(T&& obj) -> TomlTable&
 	{
-		toml::table::operator=(std::move(to_toml_table(obj)));
+		auto value = to_toml_table(obj);
+		toml::table::operator=(std::move(value));
 		return *this;
 	}
 
 	template<typename T>
-	auto as() -> T
+	auto get() const -> T
 	{
 		T retval;
 		from_toml_table(*this, retval);
@@ -51,9 +53,9 @@ struct TomlTable : public toml::table {
 	}
 
 	template<typename T>
-	inline auto get() -> T
+	inline auto as() const -> T
 	{
-		return this->as<T>();
+		return TomlTable::get<T>();
 	}
 };
 

@@ -52,6 +52,24 @@ void from_toml_table<DataDict>(const toml::table& source, DataDict& out_data)
 		out_data.emplace(std::make_pair(key, value.ref<std::string>()));
 	}
 }
+struct SimpleStruct {
+	int field1;
+	int field2;
+
+	auto operator==(const SimpleStruct& other) const -> bool
+	{
+		return field1 == other.field1 && field2 == other.field2;
+	}
+
+	IOCORE_TOML_SERIALIZABLE(SimpleStruct, field1, field2);
+};
+
+struct ComplexStruct {
+	SimpleStruct field1;
+	int field2;
+
+	IOCORE_TOML_SERIALIZABLE(ComplexStruct, field1, field2);
+};
 
 BEGIN_TEST_SUITE("elemental::TomlConfigFile")
 {
@@ -180,56 +198,72 @@ BEGIN_TEST_SUITE("elemental::TomlConfigFile")
 			auto written_data =
 			    toml_object.as<IOCore::Dictionary<std::string>>();
 
-			/*
-			                REQUIRE(
-			                    written_data["one"] ==
-			                    test_data["one"].ref<std::string>()
-			                );
-			                REQUIRE(
-			                    written_data["resolution"] ==
-			                    test_data["resolution"].ref<std::string>()
-			                );
-			                REQUIRE(
-			                    written_data["Hello"] ==
-			                    test_data["Hello"].ref<std::string>()
-			                ); /*/
+			REQUIRE(
+			    written_data["one"] ==
+			    test_data["one"].ref<std::string>()
+			);
+			REQUIRE(
+			    written_data["resolution"] ==
+			    test_data["resolution"].ref<std::string>()
+			);
+			REQUIRE(
+			    written_data["Hello"] ==
+			    test_data["Hello"].ref<std::string>()
+			);
 		}
 		fs::remove(kINPUT_FILE_PATH);
 	}
-	/*
-	         FIXTURE_TEST(
-	             "TomlConfigFile::Get<T>() basically wraps
-	   toml::table::get<T>()"
-	         )
-	         {
-	                 auto config_file = TomlConfigFile(kINPUT_FILE_PATH);
-	                 auto& json_data = config_file.getTomlTable();
 
-	                 config_file.read();
-	                 auto obtained_data =
-	                     config_file.get<IOCore::Dictionary<std::string>>();
+	FIXTURE_TEST(
+	    "TomlConfigFile::Get<T>() basically wraps toml::table::get<T>() "
+	)
+	{
+		auto config_file = TomlConfigFile(kINPUT_FILE_PATH);
+		auto& json_data = config_file.getTomlTable();
 
-	                 REQUIRE(obtained_data["key1"] == "value1");
-	                 REQUIRE(obtained_data["key2"] == "value2");
-	         }
-	         FIXTURE_TEST(
-	             "TomlConfigFile::Set() basically wraps
-	   toml::table::operator=()"
-	         )
-	         {
-	                 auto config_file = TomlConfigFile(kINPUT_FILE_PATH);
-	                 IOCore::Dictionary<std::string> test_data;
+		config_file.read();
+		auto obtained_data =
+		    config_file.get<IOCore::Dictionary<std::string>>();
 
-	                 test_data["one"] = "1";
-	                 test_data["resolution"] = "1280x720";
-	                 test_data["Hello"] = "world";
+		REQUIRE(obtained_data["key1"] == "value1");
+		REQUIRE(obtained_data["key2"] == "value2");
+	}
+	FIXTURE_TEST(
+	    "TomlConfigFile::Set() basically wraps toml::table::operator=() "
+	)
+	{
+		auto config_file = TomlConfigFile(kINPUT_FILE_PATH);
+		IOCore::Dictionary<std::string> expected_data;
 
+		expected_data["one"] = "1";
+		expected_data["resolution"] = "1280x720";
+		expected_data["Hello"] = "world";
 
-	                 REQUIRE(json_data["one"] == test_data["one"]);
-	                 REQUIRE(json_data["resolution"] ==
-	   test_data["resolution"]); REQUIRE(json_data["Hello"] ==
-	   test_data["Hello"]);
-	         } */
+		config_file.set(expected_data);
+		auto& toml_data = config_file.getTomlTable();
+
+		REQUIRE(
+		    toml_data["one"].value<std::string>() == expected_data["one"]
+		);
+		REQUIRE(
+		    toml_data["resolution"].value<std::string>() ==
+		    expected_data["resolution"]
+		);
+		REQUIRE(
+		    toml_data["Hello"].value<std::string>() ==
+		    expected_data["Hello"]
+		);
+	}
+	FIXTURE_TEST("TomlConfigFile works with ComplexStruct ")
+	{
+		auto config_file = TomlConfigFile(kINPUT_FILE_PATH);
+		config_file.set(ComplexStruct{ { 11, 22 }, 30 });
+		auto toml_data = config_file.getTomlTable();
+
+		REQUIRE(toml_data["field1"]["field1"].value<int>() == 11);
+		REQUIRE(toml_data["field1"]["field2"].value<int>() == 22);
+		REQUIRE(toml_data["field2"].value<int>() == 30);
+	}
 }
 // clang-format off
 // vim: set foldmethod=syntax textwidth=80 ts=8 sts=0 sw=8  noexpandtab ft=cpp.doxygen :
