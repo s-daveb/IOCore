@@ -69,13 +69,13 @@ void extract_from_toml_table(
 template<typename T>
 auto to_toml_table(const T& obj) -> toml::table
 {
-	auto result = to_toml_table(obj);
+	auto result = to_toml_table_impl(obj);
 	return result;
 }
 template<typename T>
 void from_toml_table(const toml::table& tbl, T& result)
 {
-	from_toml_table(tbl, result);
+	from_toml_table_impl(tbl, result);
 }
 
 #define IOCORE_TOML_TO(field) insert_in_toml_table(tbl, #field, obj.field);
@@ -88,14 +88,14 @@ void from_toml_table(const toml::table& tbl, T& result)
 		return #CLASS;                                                  \
 	}                                                                       \
                                                                                 \
-	friend auto to_toml_table(const CLASS& obj)->toml::table                \
+	friend auto to_toml_table_impl(const CLASS& obj)->toml::table           \
 	{                                                                       \
 		toml::table tbl;                                                \
 		FOREACH_PARAM(IOCORE_TOML_TO, __VA_ARGS__)                      \
 		return tbl;                                                     \
 	}                                                                       \
                                                                                 \
-	friend void from_toml_table(const toml::table& tbl, CLASS& result)      \
+	friend void from_toml_table_impl(const toml::table& tbl, CLASS& result) \
 	{                                                                       \
 		FOREACH_PARAM(IOCORE_TOML_FROM, __VA_ARGS__)                    \
 	}
