@@ -44,6 +44,15 @@ auto to_toml_table<DataDict>(const DataDict& data) -> toml::table
 	return result;
 }
 
+template<>
+void from_toml_table<DataDict>(const toml::table& source, DataDict& out_data)
+{
+	out_data.clear();
+	for (const auto& [key, value] : source) {
+		out_data.emplace(std::make_pair(key, value.ref<std::string>()));
+	}
+}
+
 BEGIN_TEST_SUITE("elemental::TomlConfigFile")
 {
 
@@ -56,9 +65,8 @@ BEGIN_TEST_SUITE("elemental::TomlConfigFile")
 				    kINPUT_FILE_PATH,
 				    std::ios::out | std::ios::trunc
 				);
-				new_file << R"({key1 = "value1"
-				           key2 = "value2"})"
-					 << std::endl;
+				new_file << R"(key1 = "value1")" << std::endl
+					 << R"(key2 = "value2")" << std::endl;
 				new_file.close();
 			}
 		}
@@ -109,32 +117,32 @@ BEGIN_TEST_SUITE("elemental::TomlConfigFile")
 		}
 		SECTION("TomlConfigFile w/ invalid path throws exception")
 		{
-
 			REQUIRE_THROWS_AS(
 			    TomlConfigFile(kNON_EXISTENT_PATH),
 			    IOCore::UnreachablePathException
 			);
 		}
 	}
+
 	FIXTURE_TEST("TomlConfigFile::Read")
 	{
 		auto config_file = TomlConfigFile(kINPUT_FILE_PATH);
-		auto& json_data = config_file.getTomlTable();
+		auto& toml_data = config_file.getTomlTable();
 
 		SECTION("TomlConfigFile::Read w/ valid file")
 		{
 			config_file.read();
-			REQUIRE_FALSE(json_data.empty());
-			REQUIRE(json_data.size() == 2);
+			REQUIRE_FALSE(toml_data.empty());
+			REQUIRE(toml_data.size() == 2);
 
-			REQUIRE(json_data["key1"] == "value1");
-			REQUIRE(json_data["key2"] == "value2");
+			REQUIRE(toml_data["key1"] == "value1");
+			REQUIRE(toml_data["key2"] == "value2");
 		}
 		SECTION("TomlConfigFile::Read w/ bad file throws exception")
 		{
 			if (!fs::exists(kBADFILE_PATH)) {
 				std::ofstream fileout(kBADFILE_PATH);
-				fileout << R"({"Hello World"})" << std::endl;
+				fileout << R"("Hello World")" << std::endl;
 				fileout.close();
 			}
 			REQUIRE_THROWS_AS(
@@ -150,73 +158,78 @@ BEGIN_TEST_SUITE("elemental::TomlConfigFile")
 		if (fs::exists(kBADFILE_PATH)) {
 			fs::remove(kBADFILE_PATH);
 		}
-	} /*
-	 TEST("TomlConfigFile::Write()")
-	 {
-	         SECTION("Create File and Read It back In")
+	}
+	TEST("TomlConfigFile::Write()")
+	{
+		SECTION("Create File and Read It back In")
+		{
+			auto config_file = TomlConfigFile(kINPUT_FILE_PATH);
+			auto& test_data = config_file.getTomlTable();
+
+			test_data.insert("one", "1");
+			test_data.insert("resolution", "1280x720");
+			test_data.insert("Hello", "world");
+
+			config_file.write();
+
+			std::ifstream resulting_file(kINPUT_FILE_PATH);
+			IOCore::TomlTable toml_object;
+
+			resulting_file >> toml_object;
+
+			auto written_data =
+			    toml_object.as<IOCore::Dictionary<std::string>>();
+
+			/*
+			                REQUIRE(
+			                    written_data["one"] ==
+			                    test_data["one"].ref<std::string>()
+			                );
+			                REQUIRE(
+			                    written_data["resolution"] ==
+			                    test_data["resolution"].ref<std::string>()
+			                );
+			                REQUIRE(
+			                    written_data["Hello"] ==
+			                    test_data["Hello"].ref<std::string>()
+			                ); /*/
+		}
+		fs::remove(kINPUT_FILE_PATH);
+	}
+	/*
+	         FIXTURE_TEST(
+	             "TomlConfigFile::Get<T>() basically wraps
+	   toml::table::get<T>()"
+	         )
 	         {
 	                 auto config_file = TomlConfigFile(kINPUT_FILE_PATH);
-	                 auto& test_data = config_file.getTomlTable();
+	                 auto& json_data = config_file.getTomlTable();
 
-	                 test_data.insert("one", "1");
-	                 test_data.insert("resolution", "1280x720");
-	                 test_data.insert("Hello", "world");
+	                 config_file.read();
+	                 auto obtained_data =
+	                     config_file.get<IOCore::Dictionary<std::string>>();
 
-	                 config_file.write();
-
-	                 std::ifstream resulting_file(kINPUT_FILE_PATH);
-	                 IOCore::TomlTable toml_object;
-
-	                 resulting_file >> toml_object;
-	                 auto written_data =
-	                     toml_object.ref<IOCore::Dictionary<std::string>>();
-
-	                 REQUIRE(
-	                     written_data["one"] ==
-	                     test_data["one"].ref<std::string>()
-	                 );
-	                 REQUIRE(
-	                     written_data["resolution"] ==
-	                     test_data["resolution"].ref<std::string>()
-	                 );
-	                 REQUIRE(
-	                     written_data["Hello"] ==
-	                     test_data["Hello"].ref<std::string>()
-	                 );
+	                 REQUIRE(obtained_data["key1"] == "value1");
+	                 REQUIRE(obtained_data["key2"] == "value2");
 	         }
-	         fs::remove(kINPUT_FILE_PATH);
-	 }
+	         FIXTURE_TEST(
+	             "TomlConfigFile::Set() basically wraps
+	   toml::table::operator=()"
+	         )
+	         {
+	                 auto config_file = TomlConfigFile(kINPUT_FILE_PATH);
+	                 IOCore::Dictionary<std::string> test_data;
 
-	 FIXTURE_TEST(
-	     "TomlConfigFile::Get<T>() basically wraps toml::table::get<T>()"
-	 )
-	 {
-	         auto config_file = TomlConfigFile(kINPUT_FILE_PATH);
-	         auto& json_data = config_file.getTomlTable();
-
-	         config_file.read();
-	         auto obtained_data =
-	             config_file.get<IOCore::Dictionary<std::string>>();
-
-	         REQUIRE(obtained_data["key1"] == "value1");
-	         REQUIRE(obtained_data["key2"] == "value2");
-	 }
-	 FIXTURE_TEST(
-	     "TomlConfigFile::Set() basically wraps toml::table::operator=()"
-	 )
-	 {
-	         auto config_file = TomlConfigFile(kINPUT_FILE_PATH);
-	         IOCore::Dictionary<std::string> test_data;
-
-	         test_data["one"] = "1";
-	         test_data["resolution"] = "1280x720";
-	         test_data["Hello"] = "world";
+	                 test_data["one"] = "1";
+	                 test_data["resolution"] = "1280x720";
+	                 test_data["Hello"] = "world";
 
 
-	         REQUIRE(json_data["one"] == test_data["one"]);
-	         REQUIRE(json_data["resolution"] == test_data["resolution"]);
-	         REQUIRE(json_data["Hello"] == test_data["Hello"]);
-	 } */
+	                 REQUIRE(json_data["one"] == test_data["one"]);
+	                 REQUIRE(json_data["resolution"] ==
+	   test_data["resolution"]); REQUIRE(json_data["Hello"] ==
+	   test_data["Hello"]);
+	         } */
 }
 // clang-format off
 // vim: set foldmethod=syntax textwidth=80 ts=8 sts=0 sw=8  noexpandtab ft=cpp.doxygen :
