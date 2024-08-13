@@ -67,9 +67,17 @@ void extract_from_toml_table(
 );
 
 template<typename T>
-auto to_toml_table(const T& obj) -> toml::table;
+auto to_toml_table(const T& obj) -> toml::table
+{
+	toml::table result;
+	result = to_toml_table(obj);
+	return result;
+}
 template<typename T>
-void from_toml_table(const toml::table& tbl, T& result);
+void from_toml_table(const toml::table& tbl, T& result)
+{
+	from_toml_table(tbl, result);
+}
 
 #define IOCORE_TOML_TO(field) insert_in_toml_table(tbl, #field, obj.field);
 #define IOCORE_TOML_FROM(field)                                                 \
