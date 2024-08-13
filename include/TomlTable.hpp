@@ -1,4 +1,4 @@
-/*
+/* TomlTable.hpp
  * Copyright © 2024 Saul D. Beniquez
  * License: Mozilla Public License v2.0 (MPL2)
  *
@@ -33,25 +33,12 @@ struct TomlTable : public toml::table {
 		toml::table::operator=(to_toml_table<T>(obj));
 		return *this;
 	}
-	// Copy assignment template override for toml::table
-	template<>
-	auto operator=<toml::table>(const toml::table& tbl) -> TomlTable&
-	{
-		toml::table::operator=(tbl);
-		return *this;
-	}
+
 	// Move assignment
 	template<typename T>
 	auto operator=(T&& obj) -> TomlTable&
 	{
 		toml::table::operator=(std::move(to_toml_table(obj)));
-		return *this;
-	}
-	// Move assignment template override for toml::table
-	template<>
-	auto operator=<toml::table>(toml::table&& tbl) -> TomlTable&
-	{
-		toml::table::operator=(std::move(tbl));
 		return *this;
 	}
 
@@ -70,6 +57,24 @@ struct TomlTable : public toml::table {
 	}
 };
 
+// @{ Template specializattions, overrides, and stream operators
+// @{ Template specializations for toml::table
+// Copy assignment template override for toml::table
+template<>
+inline auto TomlTable::operator=<toml::table>(const toml::table& tbl)
+    -> TomlTable&
+{
+	toml::table::operator=(tbl);
+	return *this;
+}
+// Move assignment template override for toml::table
+template<>
+inline auto TomlTable::operator=<toml::table>(toml::table&& tbl) -> TomlTable&
+{
+	toml::table::operator=(std::move(tbl));
+	return *this;
+} // @}
+// @{ Stream operator wrappers (around toml::table)
 inline auto operator<<(std::ostream& output_stream, const TomlTable& table)
     -> std::ostream&
 {
@@ -84,7 +89,8 @@ inline auto operator>>(const std::istream& input_stream, TomlTable& table)
 	buffer << input_stream.rdbuf();
 	table = toml::parse(buffer.str());
 	return input_stream;
-}
-}
+} // @}
+} // @}
+
 // clang-format off
-// vim: set foldmethod=syntax foldminlines=10 textwidth=80 ts=8 sts=0 sw=8 noexpandtab ft=cpp.doxygen :
+// vim: set foldmethod=marker foldmarker=@{,@} foldminlines=10 textwidth=80 ts=8 sts=0 sw=8 noexpandtab ft=cpp.doxygen :
