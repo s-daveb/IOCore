@@ -163,4 +163,15 @@ struct Serializer {
 	}
 
 // clang-format off
+#define IOCORE_TOML_SERIALIZE_IMPL(CLASS)                                       \
+	template<> 								\
+	auto Serializer::to_table<CLASS>(const CLASS& obj)			\
+	->toml::table
+
+#define IOCORE_TOML_DESERIALIZE_IMPL(CLASS)                                     \
+	template<> 								\
+	auto Serializer::from_table<CLASS>(const toml::table& tbl, CLASS& result)\
+	-> void
+
+// clang-format off
 // vim: set foldmethod=marker foldmarker=@{,@} foldminlines=10 textwidth=80 ts=8 sts=0 sw=8 noexpandtab ft=cpp.doxygen :

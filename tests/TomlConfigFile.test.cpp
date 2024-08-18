@@ -35,9 +35,7 @@ using TomlConfigFile = IOCore::TomlConfigFile;
 using StringDictionary = IOCore::Dictionary<std::string>;
 using Serializer = IOCore::TOML::Serializer;
 
-template<>
-auto Serializer::to_table<StringDictionary>(const StringDictionary& obj)
-    -> toml::table
+IOCORE_TOML_SERIALIZE_IMPL(StringDictionary)
 {
 	toml::table result;
 	for (const auto& [key, value] : obj) {
@@ -45,10 +43,7 @@ auto Serializer::to_table<StringDictionary>(const StringDictionary& obj)
 	}
 	return result;
 }
-template<>
-void Serializer::from_table<StringDictionary>(
-    const toml::table& tbl, StringDictionary& result
-)
+IOCORE_TOML_DESERIALIZE_IMPL(StringDictionary)
 {
 	result.clear();
 	for (auto [key, value] : tbl) {
