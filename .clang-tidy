@@ -57,16 +57,24 @@ CheckOptions:
 	- { key: readability-identifier-naming.FunctionCase,       value: lower_case }
 	- { key: readability-identifier-naming.PublicMethodCase,   value: camelBack }
 	- { key: readability-identifier-naming.PrivateMethodCase,  value: lower_case }
+	- { key: readability-identifier-naming.ClassMethodIgnoredRegexp, value: '^.*_toml|.*_json|_$' }
 
 	# Variable Names
 	- { key: readability-identifier-naming.VariableCase,       value: lower_case }
 	- { key: readability-identifier-naming.PrivateMemberCase,  value: lower_case }
 
 	# Constants and Enum Values
+	- { key: readability-identifier-naming.ConstantPrefix,   value: 'k' }
+	- { key: readability-identifier-naming.ConstantCase,     value: CamelCase }
+
 	- { key: readability-identifier-naming.LocalConstantPrefix,   value: 'k' }
 	- { key: readability-identifier-naming.LocalConstantCase,     value: CamelCase }
+
 	- { key: readability-identifier-naming.GlobalConstantPrefix,   value: 'k' }
 	- { key: readability-identifier-naming.GlobalConstantCase,     value: CamelCase }
+
+	- { key: readability-identifier-naming.GlobalConstantPointerPrefix,   value: 'k' }
+	- { key: readability-identifier-naming.GlobalConstantPointerCase,     value: CamelCase }
 
 	- { key: readability-identifier-naming.EnumConstantPrefix, value: '' }
 	- { key: readability-identifier-naming.EnumConstantCase,   value: CamelCase }
