@@ -3,10 +3,10 @@ add_executable(test-runner
 	runtime-tests.cpp
 	Util.macros.test.cpp
 	Util.toml.test.cpp
+	TomlTable.test.cpp
 	Application.test.cpp
 	FileResource.test.cpp
 	Exception.test.cpp
-	TomlTable.test.cpp
 	JsonConfigFile.test.cpp
 	TomlConfigFile.test.cpp
 )

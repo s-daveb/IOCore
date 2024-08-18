@@ -26,30 +26,33 @@
 
 namespace fs = std::filesystem;
 
-constexpr c::const_string kINPUT_FILE_PATH = "/tmp/test_config.toml";
-constexpr c::const_string kBADFILE_PATH = "/tmp/test_bad_config.toml";
-constexpr c::const_string kNON_EXISTENT_PATH = "/hades/tmp/dne/file.toml";
+c::string_constant kInputFilePath = "/tmp/test_config.toml";
+c::string_constant kBadFilePath = "/tmp/test_bad_config.toml";
+c::string_constant kNonExistantPath = "/hades/tmp/dne/file.toml";
 
 using TomlTable = IOCore::TomlTable;
 using TomlConfigFile = IOCore::TomlConfigFile;
-using DataDict = IOCore::Dictionary<std::string>;
+using StringDictionary = IOCore::Dictionary<std::string>;
+using Serializer = IOCore::TOML::Serializer;
 
 template<>
-auto to_toml_table<DataDict>(const DataDict& data) -> toml::table
+auto Serializer::to_table<StringDictionary>(const StringDictionary& obj)
+    -> toml::table
 {
 	toml::table result;
-	for (const auto& [key, value] : data) {
+	for (const auto& [key, value] : obj) {
 		result.insert_or_assign(key, value);
 	}
 	return result;
 }
-
 template<>
-void from_toml_table<DataDict>(const toml::table& source, DataDict& out_data)
+void Serializer::from_table<StringDictionary>(
+    const toml::table& tbl, StringDictionary& result
+)
 {
-	out_data.clear();
-	for (const auto& [key, value] : source) {
-		out_data.emplace(std::make_pair(key, value.ref<std::string>()));
+	result.clear();
+	for (auto [key, value] : tbl) {
+		result.emplace(key, value.ref<std::string>());
 	}
 }
 struct SimpleStruct {
@@ -78,9 +81,9 @@ BEGIN_TEST_SUITE("elemental::TomlConfigFile")
 	struct SampleFileGenerator {
 		SampleFileGenerator()
 		{
-			if (!fs::exists(kINPUT_FILE_PATH)) {
+			if (!fs::exists(kInputFilePath)) {
 				std::ofstream new_file(
-				    kINPUT_FILE_PATH,
+				    kInputFilePath,
 				    std::ios::out | std::ios::trunc
 				);
 				new_file << R"(key1 = "value1")" << std::endl
@@ -91,8 +94,8 @@ BEGIN_TEST_SUITE("elemental::TomlConfigFile")
 		~SampleFileGenerator()
 		{
 			try {
-				if (fs::exists(kINPUT_FILE_PATH)) {
-					fs::remove(kINPUT_FILE_PATH);
+				if (fs::exists(kInputFilePath)) {
+					fs::remove(kInputFilePath);
 				}
 			} catch (std::exception& e) {
 				DEBUG_PRINT(e.what());
@@ -105,7 +108,7 @@ BEGIN_TEST_SUITE("elemental::TomlConfigFile")
 	TEST("elemental::toml::table is serializablable like "
 	     "std::map<std::string,std::string>")
 	{
-		IOCore::Dictionary<std::string> test_data;
+		StringDictionary test_data;
 		IOCore::TomlTable tomlized;
 
 		test_data["one"] = "1";
@@ -128,7 +131,7 @@ BEGIN_TEST_SUITE("elemental::TomlConfigFile")
 	{
 		SECTION("TomlConfigFile w/ valid path")
 		{
-			auto config = TomlConfigFile(kINPUT_FILE_PATH);
+			auto config = TomlConfigFile(kInputFilePath);
 			auto& config_data = config.getTomlTable();
 
 			REQUIRE(config_data.empty());
@@ -136,7 +139,7 @@ BEGIN_TEST_SUITE("elemental::TomlConfigFile")
 		SECTION("TomlConfigFile w/ invalid path throws exception")
 		{
 			REQUIRE_THROWS_AS(
-			    TomlConfigFile(kNON_EXISTENT_PATH),
+			    TomlConfigFile(kNonExistantPath),
 			    IOCore::UnreachablePathException
 			);
 		}
@@ -144,7 +147,7 @@ BEGIN_TEST_SUITE("elemental::TomlConfigFile")
 
 	FIXTURE_TEST("TomlConfigFile::Read")
 	{
-		auto config_file = TomlConfigFile(kINPUT_FILE_PATH);
+		auto config_file = TomlConfigFile(kInputFilePath);
 		auto& toml_data = config_file.getTomlTable();
 
 		SECTION("TomlConfigFile::Read w/ valid file")
@@ -158,30 +161,30 @@ BEGIN_TEST_SUITE("elemental::TomlConfigFile")
 		}
 		SECTION("TomlConfigFile::Read w/ bad file throws exception")
 		{
-			if (!fs::exists(kBADFILE_PATH)) {
-				std::ofstream fileout(kBADFILE_PATH);
+			if (!fs::exists(kBadFilePath)) {
+				std::ofstream fileout(kBadFilePath);
 				fileout << R"("Hello World")" << std::endl;
 				fileout.close();
 			}
 			REQUIRE_THROWS_AS(
 			    [&]() {
 				    auto bad_config =
-					TomlConfigFile(kBADFILE_PATH);
+					TomlConfigFile(kBadFilePath);
 
 				    bad_config.read();
 			    }(),
 			    IOCore::Exception
 			);
 		}
-		if (fs::exists(kBADFILE_PATH)) {
-			fs::remove(kBADFILE_PATH);
+		if (fs::exists(kBadFilePath)) {
+			fs::remove(kBadFilePath);
 		}
 	}
 	TEST("TomlConfigFile::Write()")
 	{
 		SECTION("Create File and Read It back In")
 		{
-			auto config_file = TomlConfigFile(kINPUT_FILE_PATH);
+			auto config_file = TomlConfigFile(kInputFilePath);
 			auto& test_data = config_file.getTomlTable();
 
 			test_data.insert("one", "1");
@@ -190,7 +193,7 @@ BEGIN_TEST_SUITE("elemental::TomlConfigFile")
 
 			config_file.write();
 
-			std::ifstream resulting_file(kINPUT_FILE_PATH);
+			std::ifstream resulting_file(kInputFilePath);
 			IOCore::TomlTable toml_object;
 
 			resulting_file >> toml_object;
@@ -211,14 +214,14 @@ BEGIN_TEST_SUITE("elemental::TomlConfigFile")
 			    test_data["Hello"].ref<std::string>()
 			);
 		}
-		fs::remove(kINPUT_FILE_PATH);
+		fs::remove(kInputFilePath);
 	}
 
 	FIXTURE_TEST(
 	    "TomlConfigFile::Get<T>() basically wraps toml::table::get<T>() "
 	)
 	{
-		auto config_file = TomlConfigFile(kINPUT_FILE_PATH);
+		auto config_file = TomlConfigFile(kInputFilePath);
 		auto& json_data = config_file.getTomlTable();
 
 		config_file.read();
@@ -232,7 +235,7 @@ BEGIN_TEST_SUITE("elemental::TomlConfigFile")
 	    "TomlConfigFile::Set() basically wraps toml::table::operator=() "
 	)
 	{
-		auto config_file = TomlConfigFile(kINPUT_FILE_PATH);
+		auto config_file = TomlConfigFile(kInputFilePath);
 		IOCore::Dictionary<std::string> expected_data;
 
 		expected_data["one"] = "1";
@@ -256,7 +259,7 @@ BEGIN_TEST_SUITE("elemental::TomlConfigFile")
 	}
 	FIXTURE_TEST("TomlConfigFile works with ComplexStruct ")
 	{
-		auto config_file = TomlConfigFile(kINPUT_FILE_PATH);
+		auto config_file = TomlConfigFile(kInputFilePath);
 		config_file.set(ComplexStruct{ { 11, 22 }, 30 });
 		auto toml_data = config_file.getTomlTable();
 

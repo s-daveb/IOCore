@@ -11,12 +11,19 @@
 
 #include <cstddef>
 
-/*! \name Aliases for C-types that are unclear.
- * The C type char* does not immediately scream "STRING", and
- * socket libraries return `int`, rather than a typedef socket_fd_t. */
+/*! @name Aliases for C-types that are unclear.
+ * Examples: The C type `char*` does not communicate that it's being used
+ * to represent a string; socket libraries return `int`,
+ * rather than a typedef socket_fd_t, etc... */
 namespace c {
-using string = char *;
-using const_string = const char *;
+using mutable_string = char*;
+using immutable_string = const char*;
+using string_constant = const char* const;
+
+using string = immutable_string;
+using const_string = immutable_string; //! @todo: delete
+// using const_string = string_constant; //! @todo uncomment
+
 using count_t = size_t;
 } // namespace c
 

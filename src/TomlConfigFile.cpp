@@ -27,9 +27,8 @@ namespace impl {
 static std::stringstream error_buffer;
 
 enum IndentMode : int {
-	Compact = -1,
-	NewlinesOnly = 0,
-	Ident = 1,
+	Disabled = 0,
+	Enabled = 1,
 };
 enum AsciiMode : bool {
 	Default = false,
@@ -80,6 +79,9 @@ auto TomlConfigFile::read() -> IOCore::TomlTable&
 
 void TomlConfigFile::write()
 {
+	using toml::format_flags;
+	using toml::toml_formatter;
+
 	try {
 		std::ofstream file_stream(file_path);
 		if (!file_stream.is_open()) {
@@ -90,7 +92,11 @@ void TomlConfigFile::write()
 			throw IOCore::Exception(error_buffer.str());
 		}
 
-		file_stream << config_toml << std::endl;
+		auto formatter =
+		    toml_formatter{ config_toml,
+			            toml_formatter::default_flags &
+			                ~format_flags::indent_sub_tables };
+		file_stream << formatter << std::endl;
 
 		return;
 	} catch (IOCore::Exception& except) {

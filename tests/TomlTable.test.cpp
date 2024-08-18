@@ -17,10 +17,9 @@
 enum Colors { Red, Green, Blue };
 IOCORE_TOML_ENUM(Colors, Red, Green, Blue);
 
-using IOCore::TomlTable;
-
 BEGIN_TEST_SUITE("IOCore::TomlTable")
 {
+	using IOCore::TomlTable;
 	struct SimpleStruct {
 		int field1;
 		int field2;

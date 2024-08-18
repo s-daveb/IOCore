@@ -62,18 +62,19 @@ BEGIN_TEST_SUITE("Util.Toml")
 		toml::table tbl;
 		SimpleStruct obj;
 
-		IOCORE_TOML_TO(field1);
-		IOCORE_TOML_TO(field2);
+		IOCORE_TOML_FIELD(field1);
+		IOCORE_TOML_FIELD(field2);
 		REQUIRE(tbl.size() == 2);
 	}
 	TEST_CASE("IOCORE_TOML_SERIALIZABLE Macro works with SimpleStruct")
 	{
+
 		toml::table table;
 		SimpleStruct data = { 10, 20 };
 		SimpleStruct newdest;
 
-		table = to_toml_table(data);
-		from_toml_table(table, newdest);
+		table = SimpleStruct::to_toml(data);
+		SimpleStruct::from_toml(table, newdest);
 
 		CHECK(table.size() == 2);
 
@@ -85,12 +86,13 @@ BEGIN_TEST_SUITE("Util.Toml")
 	}
 	TEST_CASE("IOCORE_TOML_SERIALIZABLE Macro works with StructWithEnum")
 	{
+
 		toml::table table;
 		StructWithEnum data = { 11, 22, Green };
 		StructWithEnum newdest;
 
-		table = to_toml_table(data);
-		from_toml_table(table, newdest);
+		table = StructWithEnum::to_toml(data);
+		StructWithEnum::from_toml(table, newdest);
 
 		CHECK(table.size() == 3);
 
@@ -105,12 +107,13 @@ BEGIN_TEST_SUITE("Util.Toml")
 
 	TEST_CASE("IOCORE_TOML_SERIALIZABLE Macro works with CompositeStruct")
 	{
+
 		toml::table table;
 		CompositeStruct data = { { 10, 20 }, { 30 } };
 		CompositeStruct newdest;
 
-		table = to_toml_table(data);
-		from_toml_table(table, newdest);
+		table = CompositeStruct::to_toml(data);
+		CompositeStruct::from_toml(table, newdest);
 
 		CHECK(table.size() == 2);
 
@@ -133,8 +136,8 @@ BEGIN_TEST_SUITE("Util.Toml")
 		};
 		ComplexStruct newdest;
 
-		table = to_toml_table(data);
-		from_toml_table(table, newdest);
+		table = ComplexStruct::to_toml(data);
+		ComplexStruct::from_toml(table, newdest);
 
 		CHECK(table.size() == 4);
 
