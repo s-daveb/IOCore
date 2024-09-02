@@ -4,7 +4,7 @@ add_library(IOCore OBJECT
 	Exception.cpp
 	FileResource.cpp
 	debuginfo.cpp
-	JsonConfigFile.cpp
+	#JsonConfigFile.cpp
 	TomlConfigFile.cpp
 )
 

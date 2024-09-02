@@ -11,81 +11,54 @@
 
 #include "test-utils/common.hpp"
 
-#include "../include/TomlTable.hpp"
-#include "../include/util/toml.hpp"
+#include "IOCore/TomlTable.hpp"
+#include "IOCore/util/toml.hpp"
 
-enum Colors { Red, Green, Blue };
-IOCORE_TOML_ENUM(Colors, Red, Green, Blue);
+#include "test-utils/serialization.hpp"
 
 BEGIN_TEST_SUITE("IOCore::TomlTable")
 {
 	using IOCore::TomlTable;
-	struct SimpleStruct {
-		int field1;
-		int field2;
-
-		auto operator==(const SimpleStruct& other) const -> bool
-		{
-			return field1 == other.field1 && field2 == other.field2;
-		}
-
-		IOCORE_TOML_SERIALIZABLE(SimpleStruct, field1, field2);
-	};
-	struct SimpleStruct2 {
-		int field1;
-		int field2;
-		std::string label;
-
-		auto operator==(const SimpleStruct2& other) const -> bool
-		{
-			return label == other.label && field1 == other.field1 &&
-			       field2 == other.field2;
-		}
-
-		IOCORE_TOML_SERIALIZABLE(SimpleStruct2, field1, field2, label);
-	};
-
-	struct ComplexStruct {
-		SimpleStruct field1;
-		int field2;
-		Colors foreground;
-
-		IOCORE_TOML_SERIALIZABLE(
-		    ComplexStruct, field1, field2, foreground
-		);
-	};
-
 	TEST_CASE("IOCore::TomlTable class construction")
 	{
 		TomlTable table;
 	}
 	TEST_CASE("IOCore::TomlTable core operators, simple struct")
 	{
-		auto data = SimpleStruct2{ 11, 22, "Hello" };
+		auto data = SimpleClass{ 11, 22 };
 		TomlTable table = data;
 
-		CHECK(table.size() == 3);
+		CHECK(table.size() == 2);
 
 		CHECK(table["field1"].value<int>() == 11);
 		CHECK(table["field2"].value<int>() == 22);
-		REQUIRE(table["label"].value<std::string>() == "Hello");
 	}
 	TEST_CASE("IOCore::TomlTable core operators complex struct")
 	{
-		auto data = ComplexStruct{ { 11, 22 }, 30, Blue };
+		auto data = ComplexStruct{};
+		data.part1 = { 1, 'a' };
+		data.part2 = { 3, 4 };
+		data.part3 = { 5, 6, Blue };
+		data.background = Red;
+		data.mode = ns::Windowed;
+
 		TomlTable table = data;
-		auto newdest = table.as<ComplexStruct>();
+		auto newdest = table.get<ComplexStruct>();
 
-		CHECK(table.size() == 3);
+		REQUIRE(table.size() == 5);
 
-		CHECK(table["field1"]["field1"].value<int>() == 11);
-		CHECK(table["field1"]["field2"].value<int>() == 22);
-		CHECK(table["field2"].value<int>() == 30);
-		CHECK(table["foreground"].value<std::string>() == "Blue");
+		CHECK(table["part1"]["field1"].value<int>() == 1);
+		CHECK(table["part1"]["field2"].value<int>() == 'a');
+		CHECK(table["part2"]["field1"].value<int>() == 3);
+		CHECK(table["part2"]["field2"].value<int>() == 4);
+		CHECK(table["part3"]["field1"].value<int>() == 5);
+		CHECK(table["part3"]["field2"].value<int>() == 6);
 
-		CHECK(newdest.field1 == data.field1);
-		CHECK(newdest.field2 == data.field2);
-		CHECK(newdest.foreground == data.foreground);
+		CHECK(
+		    table["part3"]["foreground"].value<std::string>() == "Blue"
+		);
+		CHECK(table["background"].value<std::string>() == "Red");
+		CHECK(table["mode"].value<std::string>() == "Windowed");
 	}
 }
 

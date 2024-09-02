@@ -7,160 +7,109 @@
  * obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+#include <toml++/toml.h>
 #include <unordered_map>
 
 #include "test-utils/common.hpp"
+#include "test-utils/serialization.hpp"
 
-#include "../include/util/toml.hpp"
-
-enum Colors { Red, Green, Blue };
-IOCORE_TOML_ENUM(Colors, Red, Green, Blue);
+#include "IOCore/util/toml.hpp"
 
 BEGIN_TEST_SUITE("Util.Toml")
 {
-	struct SimpleStruct {
-		int field1;
-		int field2;
-
-		IOCORE_TOML_SERIALIZABLE(SimpleStruct, field1, field2);
-	};
-	struct SimpleStruct2 {
-		int fieldA;
-
-		IOCORE_TOML_SERIALIZABLE(SimpleStruct2, fieldA);
-	};
-
-	struct StructWithEnum {
-		int field1;
-		int field2;
-		Colors foreground;
-
-		IOCORE_TOML_SERIALIZABLE(
-		    StructWithEnum, field1, field2, foreground
-		);
-	};
-
-	struct CompositeStruct {
-		SimpleStruct part1;
-		SimpleStruct2 part2;
-
-		IOCORE_TOML_SERIALIZABLE(CompositeStruct, part1, part2);
-	};
-
-	struct ComplexStruct {
-		SimpleStruct part1;
-		SimpleStruct2 part2;
-		StructWithEnum part3;
-		Colors background;
-
-		IOCORE_TOML_SERIALIZABLE(
-		    ComplexStruct, part1, part2, part3, background
-		);
-	};
-	TEST_CASE("IOCORE_TOML_TO Macro works")
+	TEST_CASE("SimpleStruct Serializes")
 	{
-		toml::table tbl;
-		SimpleStruct obj;
+		SimpleStruct data{ 1 };
+		toml::table result;
+		SimpleStruct deserialized;
 
-		IOCORE_TOML_FIELD(field1);
-		IOCORE_TOML_FIELD(field2);
-		REQUIRE(tbl.size() == 2);
-	}
-	TEST_CASE("IOCORE_TOML_SERIALIZABLE Macro works with SimpleStruct")
-	{
+		to_toml(result, data);
+		from_toml(result, deserialized);
 
-		toml::table table;
-		SimpleStruct data = { 10, 20 };
-		SimpleStruct newdest;
-
-		table = SimpleStruct::to_toml(data);
-		SimpleStruct::from_toml(table, newdest);
-
-		CHECK(table.size() == 2);
-
-		CHECK(table["field1"].value<int>() == 10);
-		CHECK(table["field2"].value<int>() == 20);
-
-		CHECK(newdest.field1 == data.field1);
-		CHECK(newdest.field2 == data.field2);
-	}
-	TEST_CASE("IOCORE_TOML_SERIALIZABLE Macro works with StructWithEnum")
-	{
-
-		toml::table table;
-		StructWithEnum data = { 11, 22, Green };
-		StructWithEnum newdest;
-
-		table = StructWithEnum::to_toml(data);
-		StructWithEnum::from_toml(table, newdest);
-
-		CHECK(table.size() == 3);
-
-		CHECK(table["field1"].value<int>() == 11);
-		CHECK(table["field2"].value<int>() == 22);
-		CHECK(table["foreground"].value<std::string>() == "Green");
-
-		CHECK(newdest.field1 == data.field1);
-		CHECK(newdest.field2 == data.field2);
-		CHECK(newdest.foreground == data.foreground);
+		REQUIRE(result.size() == 2);
+		CHECK(result.at("field1").value<int>() == 1);
+		CHECK(deserialized.field1 == 1);
+		CHECK(deserialized.field2 == 0);
 	}
 
-	TEST_CASE("IOCORE_TOML_SERIALIZABLE Macro works with CompositeStruct")
+	TEST_CASE("SimpleClass Serializes")
 	{
+		SimpleClass data{ 1, 22 };
+		toml::table result;
+		SimpleClass deserialized;
 
-		toml::table table;
-		CompositeStruct data = { { 10, 20 }, { 30 } };
-		CompositeStruct newdest;
+		to_toml(result, data);
+		from_toml(result, deserialized);
 
-		table = CompositeStruct::to_toml(data);
-		CompositeStruct::from_toml(table, newdest);
+		REQUIRE(result.size() == 2);
+		CHECK(result.at("field1").value<int>() == 1);
+		CHECK(result.at("field2").value<int>() == 22);
 
-		CHECK(table.size() == 2);
-
-		CHECK(table["part1"].as_table()->size() == 2);
-		CHECK(table["part2"].as_table()->size() == 1);
-
-		CHECK(table["part1"]["field1"].value<int>() == 10);
-		CHECK(table["part1"]["field2"].value<int>() == 20);
-		CHECK(table["part2"]["fieldA"].value<int>() == 30);
-
-		CHECK(newdest.part1.field1 == data.part1.field1);
-		CHECK(newdest.part1.field2 == data.part1.field2);
-		CHECK(newdest.part2.fieldA == data.part2.fieldA);
+		CHECK(deserialized.field1 == 1);
+		CHECK(deserialized.field2 == 22);
 	}
-	TEST_CASE("IOCORE_TOML_SERIALIZABLE Macro works with ComplexStruct")
+	TEST_CASE("StructWithEnum Serializes")
 	{
-		toml::table table;
-		ComplexStruct data = {
-			{ 10, 20 }, { 30 }, { 40, 50, Blue }, Red
+		StructWithEnum data{ 1, 2, Colors::Green };
+		toml::table result;
+		StructWithEnum deserialized;
+
+		to_toml(result, data);
+		from_toml(result, deserialized);
+
+		REQUIRE(result.size() == 3);
+		CHECK(result.at("field1").value<int>() == 1);
+		CHECK(result.at("field2").value<int>() == 2);
+		CHECK(result.at("foreground").value<std::string>() == "Green");
+
+		CHECK(deserialized.field1 == data.field1);
+		CHECK(deserialized.field2 == data.field2);
+		CHECK(deserialized.foreground == data.foreground);
+	}
+	TEST_CASE("CompositeStruct Serializes")
+	{
+		CompositeStruct data{ { 1, 'c' }, { 3, 4 } };
+		toml::table result;
+		CompositeStruct deserialized;
+
+		to_toml(result, data);
+		from_toml(result, deserialized);
+
+		REQUIRE(result.size() == 2);
+		REQUIRE(result.at("part1").as_table()->size() == 2);
+		REQUIRE(result.at("part2").as_table()->size() == 2);
+
+		CHECK(deserialized.part1.field1 == data.part1.field1);
+		CHECK(deserialized.part1.field2 == data.part1.field2);
+		CHECK(deserialized.part2.field1 == data.part2.field1);
+		CHECK(deserialized.part2.field2 == data.part2.field2);
+	}
+
+	TEST_CASE("ComplexStruct Serializes")
+	{
+		ComplexStruct data{
+			{ 1, 'c' }, { 3, 4 }, { 5, 6, Colors::Red }, Colors::Blue
 		};
-		ComplexStruct newdest;
+		toml::table result;
+		ComplexStruct deserialized;
 
-		table = ComplexStruct::to_toml(data);
-		ComplexStruct::from_toml(table, newdest);
+		to_toml(result, data);
+		from_toml(result, deserialized);
 
-		CHECK(table.size() == 4);
+		REQUIRE(result.size() == 5);
+		REQUIRE(result.at("part1").as_table()->size() == 2);
+		REQUIRE(result.at("part2").as_table()->size() == 2);
+		REQUIRE(result.at("part3").as_table()->size() == 3);
 
-		CHECK(table["part1"].as_table()->size() == 2);
-		CHECK(table["part2"].as_table()->size() == 1);
-		CHECK(table["part3"].as_table()->size() == 3);
-
-		CHECK(table["part1"]["field1"].value<int>() == 10);
-		CHECK(table["part1"]["field2"].value<int>() == 20);
-		CHECK(table["part2"]["fieldA"].value<int>() == 30);
-		CHECK(table["part3"]["field1"].value<int>() == 40);
-		CHECK(table["part3"]["field2"].value<int>() == 50);
-		CHECK(
-		    table["part3"]["foreground"].value<std::string>() == "Blue"
-		);
-
-		CHECK(newdest.part1.field1 == data.part1.field1);
-		CHECK(newdest.part1.field2 == data.part1.field2);
-		CHECK(newdest.part2.fieldA == data.part2.fieldA);
-		CHECK(newdest.part3.field1 == data.part3.field1);
-		CHECK(newdest.part3.field2 == data.part3.field2);
-		CHECK(newdest.part3.foreground == data.part3.foreground);
-		CHECK(newdest.background == data.background);
+		CHECK(deserialized.part1.field1 == data.part1.field1);
+		CHECK(deserialized.part1.field2 == data.part1.field2);
+		CHECK(deserialized.part2.field1 == data.part2.field1);
+		CHECK(deserialized.part2.field2 == data.part2.field2);
+		CHECK(deserialized.part3.field1 == data.part3.field1);
+		CHECK(deserialized.part3.field2 == data.part3.field2);
+		CHECK(deserialized.part3.foreground == data.part3.foreground);
+		CHECK(deserialized.background == data.background);
+		CHECK(deserialized.mode == data.mode);
 	}
 }
 // clang-format off

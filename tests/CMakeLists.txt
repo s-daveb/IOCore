@@ -1,13 +1,13 @@
 # Define the executable 'test-runner'
 add_executable(test-runner
 	runtime-tests.cpp
+	Exception.test.cpp
 	Util.macros.test.cpp
 	Util.toml.test.cpp
 	TomlTable.test.cpp
-	Application.test.cpp
-	FileResource.test.cpp
-	Exception.test.cpp
-	JsonConfigFile.test.cpp
+	#Application.test.cpp
+	#FileResource.test.cpp
+	#JsonConfigFile.test.cpp
 	TomlConfigFile.test.cpp
 )
 

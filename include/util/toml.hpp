@@ -1,6 +1,6 @@
-/* toml.hpp
+/* util/toml.hpp
  * Copyright © 2024 Saul D. Beniquez
- * License: Mozilla Public License v. 2.0
+ * License: Mozilla Public License v2.0 (MPL2)
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License,
  * v.2.0. If a copy of the MPL was not distributed with this file, You can
@@ -9,152 +9,151 @@
 
 #pragma once
 
-#include <algorithm>
-#include <initializer_list>
-#include <string>
-#include <type_traits>
-#include <utility>
-
 #include <toml++/toml.hpp>
 
 #include "../Exception.hpp"
-#include "./macros.hpp"
+#include "macros.hpp"
 
-template<typename T>
-constexpr bool is_toml_type_t = toml::impl::can_partially_represent_native<T>;
+inline namespace TOML {
 
-namespace IOCore {
-struct TomlException : public Exception {
+struct TomlException : public IOCore::Exception {
 
 	TomlException()
-	    : Exception("TOML Serialization/Deseralization Exception")
+	    : IOCore::Exception("TOML Serialization/Deseralization Exception")
 	{
 	}
-	explicit TomlException(const std::string& message) : Exception(message)
+	explicit TomlException(const std::string& message)
+	    : IOCore::Exception(message)
 	{
 	}
 	~TomlException() override = default;
 };
+
+template<typename T>
+constexpr bool is_toml_type_t = toml::impl::can_partially_represent_native<T>;
+
+template<typename T>
+void to_toml(toml::table&, const T&);
+
+template<typename T>
+void from_toml(const toml::table&, T&);
+
+template<typename T>
+auto create_toml(const T& obj) -> toml::table
+{
+	toml::table tbl;
+	to_toml(tbl, obj);
+	return tbl;
 }
 
-namespace IOCore::TOML {
+template<typename TField>
+inline void
+add_toml_field(const TField& obj, const char* fieldName, toml::table& tbl)
+{
+	using value_type = std::decay_t<TField>;
 
-struct Serializer {
-	template<typename TClass>
-	static auto to_table(const TClass& obj) -> toml::table // NOLINT
-	{
-		using class_t = std::decay_t<TClass>;
-		auto result = class_t::to_toml(obj);
-		return result;
-	}
-	template<typename TClass>
-	static void from_table(const toml::table& tbl, TClass& result) // NOLINT
-	{
-		using class_t = std::decay_t<TClass>;
-		class_t::from_toml(tbl, result);
-	}
-
-	template<typename TField>
-	static void insert_field( // NOLINT
-	    toml::table& tbl, const char* fieldName, const TField& obj
-	)
-	{
-		using value_type = std::decay_t<TField>;
-
+	if constexpr (std::is_enum_v<value_type>) {
+		add_toml_enum_field(obj, fieldName, tbl);
+	} else if constexpr (std::is_same_v<char, value_type>) {
+		tbl.insert_or_assign(fieldName, static_cast<int>(obj));
+		return;
+	} else {
 		if constexpr (is_toml_type_t<value_type>) {
 			tbl.insert_or_assign(fieldName, obj);
 		} else {
-			auto subtable = to_table(obj);
+			toml::table subtable;
+			to_toml(subtable, obj);
 			tbl.insert_or_assign(fieldName, subtable);
 		}
 	}
-	template<typename TField>
-	static void extract_field( // NOLINT
-	    const toml::table& tbl, const char* fieldName, TField& output
-	)
-	{
-		using value_type = std::decay_t<TField>;
+}
+template<typename TField>
+inline void
+extract_toml_field(const toml::table& tbl, const char* fieldName, TField& output)
+{
+	using value_type = std::decay_t<TField>;
 
-		if (!tbl.contains(fieldName)) {
-			throw IOCore::TomlException(
-			    "Missing field " + std::string(fieldName)
-			);
-		}
-		if constexpr (is_toml_type_t<value_type>) {
-			output = tbl[fieldName].value<value_type>().value();
-		} else {
-			auto subtable = *(tbl[fieldName].as_table());
-			from_table(subtable, output);
-		}
+	if (!tbl.contains(fieldName)) {
+		throw TomlException("Missing field " + std::string(fieldName));
 	}
-};
+
+	if constexpr (std::is_enum_v<value_type>) {
+		extract_toml_enum_field(tbl, fieldName, output);
+	} else if constexpr (std::is_same_v<char, value_type>) {
+		output = tbl[fieldName].value<int>().value();
+	} else if constexpr (is_toml_type_t<value_type>) {
+		output = tbl[fieldName].value<value_type>().value();
+	} else {
+		auto subtable = *(tbl[fieldName].as_table());
+		from_toml(subtable, output);
+	}
 }
 
-#define IOCORE_TOML_FIELD(field)                                                \
-	IOCore::TOML::Serializer::insert_field<decltype(obj.field)>(            \
-	    tbl, #field, obj.field                                              \
-	);
-#define IOCORE_TOML_EXTRACT_FIELD(field)                                        \
-	IOCore::TOML::Serializer::extract_field<decltype(result.field)>(        \
-	    tbl, #field, result.field                                           \
-	);
+} // namespace TOML
 
-#define IOCORE_TOML_SERIALIZABLE(CLASS, ...)                                    \
-	static constexpr auto _class_name()->const char*                        \
+#define INSERT_FIELD(FIELD) add_toml_field(obj.FIELD, #FIELD, table);
+#define EXTRACT_FIELD(FIELD) extract_toml_field(table, #FIELD, obj.FIELD);
+
+#define ENUM_FIELD_ENTRY(field) NAMED_PAIR(field),
+
+#define TOML_STRUCT(STRUCT_TYPE, ...)                                           \
+	inline void to_toml(toml::table& table, const STRUCT_TYPE& obj)         \
 	{                                                                       \
-		return #CLASS;                                                  \
+		FOREACH_PARAM(INSERT_FIELD, __VA_ARGS__);                       \
 	}                                                                       \
                                                                                 \
-	static auto to_toml(const CLASS& obj)->toml::table                      \
+	inline void from_toml(const toml::table& table, STRUCT_TYPE& obj)       \
 	{                                                                       \
-		toml::table tbl;                                                \
-		FOREACH_PARAM(IOCORE_TOML_FIELD, __VA_ARGS__)                   \
-		return tbl;                                                     \
+		FOREACH_PARAM(EXTRACT_FIELD, __VA_ARGS__);                      \
+	}
+
+#define TOML_CLASS(CLASS_TYPE, ...)                                             \
+	inline friend void to_toml(toml::table& table, const CLASS_TYPE& obj)   \
+	{                                                                       \
+		FOREACH_PARAM(INSERT_FIELD, __VA_ARGS__);                       \
 	}                                                                       \
                                                                                 \
-	static void from_toml(const toml::table& tbl, CLASS& result)            \
+	inline friend void from_toml(const toml::table& table, CLASS_TYPE& obj) \
 	{                                                                       \
-		FOREACH_PARAM(IOCORE_TOML_EXTRACT_FIELD, __VA_ARGS__)           \
-	}                                                                       \
-	friend class IOCore::TOML::Serializer;
+		FOREACH_PARAM(EXTRACT_FIELD, __VA_ARGS__);                      \
+	}
 
-#define IOCORE_TOML_ENUM(ENUM_TYPE, ...)                                        \
-	template<>                                                              \
-	inline void IOCore::TOML::Serializer::insert_field<ENUM_TYPE>(          \
-	    toml::table & tbl, const char* fieldName, const ENUM_TYPE& obj      \
+#define TOML_ENUM(ENUM_TYPE, ...)                                               \
+	inline void add_toml_enum_field(                                        \
+	    const ENUM_TYPE& obj, const char* fieldName, toml::table& tbl       \
 	)                                                                       \
 	{                                                                       \
-		constexpr bool enum_check = std::is_enum<ENUM_TYPE>::value;     \
-		static_assert(enum_check, #ENUM_TYPE "must be an enum!");       \
-                                                                                \
-		using pair_t = std::pair<ENUM_TYPE, const char*>;               \
+		static_assert(                                                  \
+		    std::is_enum<ENUM_TYPE>::value,                             \
+		    #ENUM_TYPE "must be an enum!"                               \
+		);                                                              \
+		using pair_t = std::pair<const char*, ENUM_TYPE>;               \
 		static const pair_t _enum_to_string[] = {                       \
-			FOREACH_ENUM_PARAM(TOML_ENUM_FIELD, __VA_ARGS__)        \
+			FOREACH_PARAM(ENUM_FIELD_ENTRY, __VA_ARGS__)            \
 		};                                                              \
 		auto it = std::find_if(                                         \
 		    std::begin(_enum_to_string),                                \
 		    std::end(_enum_to_string),                                  \
 		    [obj](const auto& pair) -> bool {                           \
-			    return pair.first == obj;                           \
+			    return pair.second == obj;                          \
 		    }                                                           \
 		);                                                              \
-		tbl.insert_or_assign(fieldName, it->second);                    \
+		tbl.insert_or_assign(fieldName, it->first);                     \
 	}                                                                       \
-                                                                                \
-	template<>                                                              \
-	inline void IOCore::TOML::Serializer::extract_field<ENUM_TYPE>(         \
+	inline void extract_toml_enum_field(                                    \
 	    const toml::table& tbl, const char* fieldName, ENUM_TYPE& obj       \
 	)                                                                       \
 	{                                                                       \
-		constexpr bool enum_check = std::is_enum<ENUM_TYPE>::value;     \
-		static_assert(enum_check, #ENUM_TYPE "must be an enum!");       \
-                                                                                \
-		using pair_t = std::pair<ENUM_TYPE, const char*>;               \
+		static_assert(                                                  \
+		    std::is_enum<ENUM_TYPE>::value,                             \
+		    #ENUM_TYPE " must be an enum!"                              \
+		);                                                              \
+		using pair_t = std::pair<const char*, ENUM_TYPE>;               \
 		static const pair_t _enum_to_string[] = {                       \
-			FOREACH_ENUM_PARAM(TOML_ENUM_FIELD, __VA_ARGS__)        \
+			FOREACH_PARAM(ENUM_FIELD_ENTRY, __VA_ARGS__)            \
 		};                                                              \
 		auto val = tbl[fieldName].value<std::string>().value();         \
-		for (const auto& [enum_val, str] : _enum_to_string) {           \
+		for (const auto& [str, enum_val] : _enum_to_string) {           \
 			if (str == val) {                                       \
 				obj = enum_val;                                 \
 				break;                                          \
@@ -162,16 +161,12 @@ struct Serializer {
 		}                                                               \
 	}
 
-// clang-format off
-#define IOCORE_TOML_SERIALIZE_IMPL(CLASS)                                       \
-	template<> 								\
-	auto Serializer::to_table<CLASS>(const CLASS& obj)			\
-	->toml::table
-
-#define IOCORE_TOML_DESERIALIZE_IMPL(CLASS)                                     \
-	template<> 								\
-	auto Serializer::from_table<CLASS>(const toml::table& tbl, CLASS& result)\
-	-> void
+#define TOML_SERIALIZE_IMPL(CLASS)                                              \
+	template<>                                                              \
+	void to_toml<CLASS>(toml::table & result, const CLASS& obj)
+#define TOML_DESERIALIZE_IMPL(CLASS)                                            \
+	template<>                                                              \
+	void from_toml<CLASS>(const toml::table& tbl, CLASS& result)
 
 // clang-format off
-// vim: set foldmethod=marker foldmarker=@{,@} foldminlines=10 textwidth=80 ts=8 sts=0 sw=8 noexpandtab ft=cpp.doxygen :
+// vim: set foldmethod=syntax foldminlines=10 textwidth=80 ts=8 sts=0 sw=8 noexpandtab ft=cpp.doxygen :
