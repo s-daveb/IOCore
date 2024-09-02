@@ -17,8 +17,6 @@ namespace IOCore {
 
 struct TomlTable : public toml::table {
     private:
-	using TomlSerializer = IOCore::TOML::Serializer;
-
     public:
 	TomlTable() = default;
 	TomlTable(const toml::table& tbl) : toml::table(tbl) {}
@@ -26,8 +24,7 @@ struct TomlTable : public toml::table {
 	TomlTable(TomlTable&& tbl) noexcept : toml::table(std::move(tbl)) {}
 
 	template<typename T>
-	TomlTable(const T& obj)
-	    : toml::table(TomlSerializer::to_table<std::decay_t<T>>(obj))
+	TomlTable(const T& obj) : toml::table(to_table<std::decay_t<T>>(obj))
 	{
 	}
 
@@ -36,7 +33,7 @@ struct TomlTable : public toml::table {
 	auto operator=(const T& obj) -> TomlTable&
 	{
 		using value_t = std::decay_t<T>;
-		auto value = TomlSerializer::to_table<value_t>(obj);
+		auto value = to_table<value_t>(obj);
 		toml::table::operator=(value);
 		return *this;
 	}
@@ -46,7 +43,7 @@ struct TomlTable : public toml::table {
 	auto operator=(T&& obj) -> TomlTable&
 	{
 		using value_t = std::decay_t<T>;
-		auto value = TomlSerializer::to_table<value_t>(obj);
+		auto value = to_table<value_t>(obj);
 		toml::table::operator=(std::move(value));
 		return *this;
 	}
@@ -55,7 +52,7 @@ struct TomlTable : public toml::table {
 	auto get() const -> T
 	{
 		T retval;
-		TomlSerializer::from_table<T>(*this, retval);
+		from_table<T>(*this, retval);
 		return retval;
 	}
 

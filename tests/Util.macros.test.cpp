@@ -10,7 +10,6 @@
 #include "test-utils/common.hpp"
 
 #include "../include/util/macros.hpp"
-#include "../include/util/toml.hpp"
 
 #include <iterator>
 #include <sstream>

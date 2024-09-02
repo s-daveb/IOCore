@@ -14,8 +14,10 @@
 #include "../include/TomlTable.hpp"
 #include "../include/util/toml.hpp"
 
+namespace impl {
 enum Colors { Red, Green, Blue };
 IOCORE_TOML_ENUM(Colors, Red, Green, Blue);
+}
 
 BEGIN_TEST_SUITE("IOCore::TomlTable")
 {
