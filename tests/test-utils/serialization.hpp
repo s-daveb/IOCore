@@ -35,16 +35,16 @@ TOML_STRUCT(SimpleStruct, field1, field2);
 
 class SimpleClass {
     public:
-	int field_a;
-	int field_b;
+	int field1;
+	int field2;
 
 	auto operator==(const SimpleClass& other) const -> bool
 	{
-		return field_a == other.field_a && field_b == other.field_b;
+		return field1 == other.field1 && field2 == other.field2;
 	}
 
     private:
-	TOML_CLASS(SimpleClass, field_a, field_b);
+	TOML_CLASS(SimpleClass, field1, field2);
 };
 
 struct StructWithEnum {

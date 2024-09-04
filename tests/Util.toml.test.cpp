@@ -42,11 +42,11 @@ BEGIN_TEST_SUITE("Util.Toml")
 		from_toml(result, deserialized);
 
 		REQUIRE(result.size() == 2);
-		CHECK(result.at("field_a").value<int>() == 1);
-		CHECK(result.at("field_b").value<int>() == 22);
+		CHECK(result.at("field1").value<int>() == 1);
+		CHECK(result.at("field2").value<int>() == 22);
 
-		CHECK(deserialized.field_a == 1);
-		CHECK(deserialized.field_b == 22);
+		CHECK(deserialized.field1 == 1);
+		CHECK(deserialized.field2 == 22);
 	}
 	TEST_CASE("StructWithEnum Serializes")
 	{
@@ -81,8 +81,8 @@ BEGIN_TEST_SUITE("Util.Toml")
 
 		CHECK(deserialized.part1.field1 == data.part1.field1);
 		CHECK(deserialized.part1.field2 == data.part1.field2);
-		CHECK(deserialized.part2.field_a == data.part2.field_a);
-		CHECK(deserialized.part2.field_b == data.part2.field_b);
+		CHECK(deserialized.part2.field1 == data.part2.field1);
+		CHECK(deserialized.part2.field2 == data.part2.field2);
 	}
 
 	TEST_CASE("ComplexStruct Serializes")
@@ -103,8 +103,8 @@ BEGIN_TEST_SUITE("Util.Toml")
 
 		CHECK(deserialized.part1.field1 == data.part1.field1);
 		CHECK(deserialized.part1.field2 == data.part1.field2);
-		CHECK(deserialized.part2.field_a == data.part2.field_a);
-		CHECK(deserialized.part2.field_b == data.part2.field_b);
+		CHECK(deserialized.part2.field1 == data.part2.field1);
+		CHECK(deserialized.part2.field2 == data.part2.field2);
 		CHECK(deserialized.part3.field1 == data.part3.field1);
 		CHECK(deserialized.part3.field2 == data.part3.field2);
 		CHECK(deserialized.part3.foreground == data.part3.foreground);

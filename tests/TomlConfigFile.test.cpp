@@ -234,22 +234,23 @@ BEGIN_TEST_SUITE("elemental::TomlConfigFile")
 	{
 		auto config_file = TomlConfigFile(kInputFilePath);
 		config_file.set(ComplexStruct{
-		    { 11, 22 }, { 30, 0 }, { 1, 2, Red }, Blue, ns::Windowed });
+		    { 11, 'c' }, { 30, 0 }, { 1, 2, Red }, Blue, ns::Windowed });
 		auto toml_data = config_file.getTomlTable();
 
 		REQUIRE(toml_data["part1"]["field1"].value<int>() == 11);
-		REQUIRE(
-		    toml_data["part1"]["field2"].value<std::string>() == "c"
-		);
-		REQUIRE(toml_data["part2"]["field_a"].value<int>() == 30);
-		REQUIRE(toml_data["part2"]["field_b"].value<int>() == 0);
+		REQUIRE(toml_data["part1"]["field2"].value<int>() == 'c');
+		REQUIRE(toml_data["part2"]["field1"].value<int>() == 30);
+		REQUIRE(toml_data["part2"]["field2"].value<int>() == 0);
 
 		REQUIRE(toml_data["part3"]["field1"].value<int>() == 1);
 		REQUIRE(toml_data["part3"]["field2"].value<int>() == 2);
-		REQUIRE(toml_data["part3"]["foreground"].value<int>() == Red);
+		REQUIRE(
+		    toml_data["part3"]["foreground"].value<std::string>() ==
+		    "Red"
+		);
 
-		REQUIRE(toml_data["background"].value<int>() == Blue);
-		REQUIRE(toml_data["mode"].value<int>() == ns::Windowed);
+		REQUIRE(toml_data["background"].value<std::string>() == "Blue");
+		REQUIRE(toml_data["mode"].value<std::string>() == "Windowed");
 	}
 }
 // clang-format off

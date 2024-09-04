@@ -55,7 +55,7 @@ add_toml_field(const TField& obj, const char* fieldName, toml::table& tbl)
 	if constexpr (std::is_enum_v<value_type>) {
 		add_toml_enum_field(obj, fieldName, tbl);
 	} else if constexpr (std::is_same_v<char, value_type>) {
-		tbl.insert_or_assign(fieldName, std::string(1, obj));
+		tbl.insert_or_assign(fieldName, static_cast<int>(obj));
 		return;
 	} else {
 		if constexpr (is_toml_type_t<value_type>) {
@@ -80,7 +80,7 @@ extract_toml_field(const toml::table& tbl, const char* fieldName, TField& output
 	if constexpr (std::is_enum_v<value_type>) {
 		extract_toml_enum_field(tbl, fieldName, output);
 	} else if constexpr (std::is_same_v<char, value_type>) {
-		output = tbl[fieldName].value<std::string>()->at(0);
+		output = tbl[fieldName].value<int>().value();
 	} else if constexpr (is_toml_type_t<value_type>) {
 		output = tbl[fieldName].value<value_type>().value();
 	} else {

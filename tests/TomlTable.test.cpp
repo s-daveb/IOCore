@@ -28,7 +28,7 @@ BEGIN_TEST_SUITE("IOCore::TomlTable")
 		auto data = SimpleClass{ 11, 22 };
 		TomlTable table = data;
 
-		CHECK(table.size() == 3);
+		CHECK(table.size() == 2);
 
 		CHECK(table["field1"].value<int>() == 11);
 		CHECK(table["field2"].value<int>() == 22);
@@ -36,7 +36,7 @@ BEGIN_TEST_SUITE("IOCore::TomlTable")
 	TEST_CASE("IOCore::TomlTable core operators complex struct")
 	{
 		auto data = ComplexStruct{};
-		data.part1 = { 1, 2 };
+		data.part1 = { 1, 'a' };
 		data.part2 = { 3, 4 };
 		data.part3 = { 5, 6, Blue };
 		data.background = Red;
@@ -48,15 +48,17 @@ BEGIN_TEST_SUITE("IOCore::TomlTable")
 		REQUIRE(table.size() == 5);
 
 		CHECK(table["part1"]["field1"].value<int>() == 1);
-		CHECK(table["part1"]["field2"].value<int>() == 2);
+		CHECK(table["part1"]["field2"].value<int>() == 'a');
 		CHECK(table["part2"]["field1"].value<int>() == 3);
 		CHECK(table["part2"]["field2"].value<int>() == 4);
 		CHECK(table["part3"]["field1"].value<int>() == 5);
 		CHECK(table["part3"]["field2"].value<int>() == 6);
 
-		CHECK(table["part3"]["foreground"].value<int>() == Blue);
-		CHECK(table["background"].value<int>() == Red);
-		CHECK(table["mode"].value<int>() == ns::Windowed);
+		CHECK(
+		    table["part3"]["foreground"].value<std::string>() == "Blue"
+		);
+		CHECK(table["background"].value<std::string>() == "Red");
+		CHECK(table["mode"].value<std::string>() == "Windowed");
 	}
 }
 
