@@ -5,7 +5,7 @@ add_library(IOCore OBJECT
 	FileResource.cpp
 	debuginfo.cpp
 	#JsonConfigFile.cpp
-	#TomlConfigFile.cpp
+	TomlConfigFile.cpp
 )
 
 set_target_properties(IOCore PROPERTIES

@@ -1,14 +1,14 @@
 # Define the executable 'test-runner'
 add_executable(test-runner
 	runtime-tests.cpp
+	Exception.test.cpp
 	Util.macros.test.cpp
 	Util.toml.test.cpp
-	#TomlTable.test.cpp
+	TomlTable.test.cpp
 	#Application.test.cpp
 	#FileResource.test.cpp
-	#Exception.test.cpp
 	#JsonConfigFile.test.cpp
-	#TomlConfigFile.test.cpp
+	TomlConfigFile.test.cpp
 )
 
 target_include_directories(test-runner PRIVATE

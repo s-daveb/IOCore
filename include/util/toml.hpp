@@ -12,8 +12,7 @@
 #include <toml++/toml.hpp>
 
 #include "../Exception.hpp"
-#include "./macros.hpp"
-
+#include "macros.hpp"
 
 inline namespace TOML {
 
@@ -38,6 +37,14 @@ void to_toml(toml::table&, const T&);
 
 template<typename T>
 void from_toml(const toml::table&, T&);
+
+template<typename T>
+auto create_toml(const T& obj) -> toml::table
+{
+	toml::table tbl;
+	to_toml(tbl, obj);
+	return tbl;
+}
 
 template<typename TField>
 inline void
@@ -122,16 +129,16 @@ extract_toml_field(const toml::table& tbl, const char* fieldName, TField& output
 		);                                                              \
 		using pair_t = std::pair<const char*, ENUM_TYPE>;               \
 		static const pair_t _enum_to_string[] = {                       \
-			FOREACH_PARAM(ENUM_FIELD_ENTRY, __VA_ARGS__)        \
+			FOREACH_PARAM(ENUM_FIELD_ENTRY, __VA_ARGS__)            \
 		};                                                              \
 		auto it = std::find_if(                                         \
 		    std::begin(_enum_to_string),                                \
 		    std::end(_enum_to_string),                                  \
 		    [obj](const auto& pair) -> bool {                           \
-			    return pair.second == obj;                           \
+			    return pair.second == obj;                          \
 		    }                                                           \
 		);                                                              \
-		tbl.insert_or_assign(fieldName, it->first);                    \
+		tbl.insert_or_assign(fieldName, it->first);                     \
 	}                                                                       \
 	inline void extract_toml_enum_field(                                    \
 	    const toml::table& tbl, const char* fieldName, ENUM_TYPE& obj       \
@@ -143,7 +150,7 @@ extract_toml_field(const toml::table& tbl, const char* fieldName, TField& output
 		);                                                              \
 		using pair_t = std::pair<const char*, ENUM_TYPE>;               \
 		static const pair_t _enum_to_string[] = {                       \
-			FOREACH_PARAM(ENUM_FIELD_ENTRY, __VA_ARGS__)        \
+			FOREACH_PARAM(ENUM_FIELD_ENTRY, __VA_ARGS__)            \
 		};                                                              \
 		auto val = tbl[fieldName].value<std::string>().value();         \
 		for (const auto& [str, enum_val] : _enum_to_string) {           \
@@ -153,5 +160,13 @@ extract_toml_field(const toml::table& tbl, const char* fieldName, TField& output
 			}                                                       \
 		}                                                               \
 	}
+
+#define TOML_SERIALIZE_IMPL(CLASS)                                              \
+	template<>                                                              \
+	void to_toml<CLASS>(toml::table & result, const CLASS& obj)
+#define TOML_DESERIALIZE_IMPL(CLASS)                                            \
+	template<>                                                              \
+	void from_toml<CLASS>(const toml::table& tbl, CLASS& result)
+
 // clang-format off
 // vim: set foldmethod=syntax foldminlines=10 textwidth=80 ts=8 sts=0 sw=8 noexpandtab ft=cpp.doxygen :

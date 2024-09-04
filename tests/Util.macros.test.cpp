@@ -19,6 +19,8 @@
 
 enum Colors { Red, Green, Blue };
 
+#define NAME_ENTRY(field) NAMED_PAIR(field),
+
 BEGIN_TEST_SUITE("Util.Macros")
 {
 	TEST_CASE("FOREACH_PARAM Macro works")
@@ -33,14 +35,14 @@ BEGIN_TEST_SUITE("Util.Macros")
 
 	TEST_CASE("FOREACH_ENUM_PARAM Macro works")
 	{
-		std::pair<Colors, const std::string> color_pairs[] = {
-			FOREACH_ENUM_PARAM(TOML_ENUM_FIELD, Red, Green, Blue)
+		std::pair<const std::string, Colors> color_pairs[] = {
+			FOREACH_PARAM(NAME_ENTRY, Red, Green, Blue)
 		};
 
 		CHECK(std::size(color_pairs) == 3);
-		REQUIRE(color_pairs[0].second == "Red");
-		REQUIRE(color_pairs[1].second == "Green");
-		REQUIRE(color_pairs[2].second == "Blue");
+		REQUIRE(color_pairs[0].first == "Red");
+		REQUIRE(color_pairs[1].first == "Green");
+		REQUIRE(color_pairs[2].first == "Blue");
 	}
 }
 

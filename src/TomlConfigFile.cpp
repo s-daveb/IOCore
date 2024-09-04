@@ -8,6 +8,7 @@
  */
 
 #include "TomlConfigFile.hpp"
+#include "util/toml.hpp"
 
 #include "Exception.hpp"
 #include "sys/debuginfo.hpp"

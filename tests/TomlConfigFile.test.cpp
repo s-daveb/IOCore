@@ -16,6 +16,7 @@
 #include "IOCore/util/debug_print.hpp"
 
 #include "test-utils/common.hpp"
+#include "test-utils/serialization.hpp"
 
 #include <filesystem>
 #include <fstream>
@@ -33,45 +34,22 @@ c::string_constant kNonExistantPath = "/hades/tmp/dne/file.toml";
 using TomlTable = IOCore::TomlTable;
 using TomlConfigFile = IOCore::TomlConfigFile;
 using StringDictionary = IOCore::Dictionary<std::string>;
-using Serializer = IOCore::TOML::Serializer;
 
-IOCORE_TOML_SERIALIZE_IMPL(StringDictionary)
+TOML_SERIALIZE_IMPL(StringDictionary)
 {
-	toml::table result;
 	for (const auto& [key, value] : obj) {
 		result.insert_or_assign(key, value);
 	}
-	return result;
 }
-IOCORE_TOML_DESERIALIZE_IMPL(StringDictionary)
+TOML_DESERIALIZE_IMPL(StringDictionary)
 {
 	result.clear();
 	for (auto [key, value] : tbl) {
 		result.emplace(key, value.ref<std::string>());
 	}
 }
-struct SimpleStruct {
-	int field1;
-	int field2;
-
-	auto operator==(const SimpleStruct& other) const -> bool
-	{
-		return field1 == other.field1 && field2 == other.field2;
-	}
-
-	IOCORE_TOML_SERIALIZABLE(SimpleStruct, field1, field2);
-};
-
-struct ComplexStruct {
-	SimpleStruct field1;
-	int field2;
-
-	IOCORE_TOML_SERIALIZABLE(ComplexStruct, field1, field2);
-};
-
 BEGIN_TEST_SUITE("elemental::TomlConfigFile")
 {
-
 	namespace { // Test fixtures
 	struct SampleFileGenerator {
 		SampleFileGenerator()
@@ -255,12 +233,23 @@ BEGIN_TEST_SUITE("elemental::TomlConfigFile")
 	FIXTURE_TEST("TomlConfigFile works with ComplexStruct ")
 	{
 		auto config_file = TomlConfigFile(kInputFilePath);
-		config_file.set(ComplexStruct{ { 11, 22 }, 30 });
+		config_file.set(ComplexStruct{
+		    { 11, 22 }, { 30, 0 }, { 1, 2, Red }, Blue, ns::Windowed });
 		auto toml_data = config_file.getTomlTable();
 
-		REQUIRE(toml_data["field1"]["field1"].value<int>() == 11);
-		REQUIRE(toml_data["field1"]["field2"].value<int>() == 22);
-		REQUIRE(toml_data["field2"].value<int>() == 30);
+		REQUIRE(toml_data["part1"]["field1"].value<int>() == 11);
+		REQUIRE(
+		    toml_data["part1"]["field2"].value<std::string>() == "c"
+		);
+		REQUIRE(toml_data["part2"]["field_a"].value<int>() == 30);
+		REQUIRE(toml_data["part2"]["field_b"].value<int>() == 0);
+
+		REQUIRE(toml_data["part3"]["field1"].value<int>() == 1);
+		REQUIRE(toml_data["part3"]["field2"].value<int>() == 2);
+		REQUIRE(toml_data["part3"]["foreground"].value<int>() == Red);
+
+		REQUIRE(toml_data["background"].value<int>() == Blue);
+		REQUIRE(toml_data["mode"].value<int>() == ns::Windowed);
 	}
 }
 // clang-format off
