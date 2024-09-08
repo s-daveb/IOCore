@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <algorithm>
+
 #include <toml++/toml.hpp>
 
 #include "../Exception.hpp"
