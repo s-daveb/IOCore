@@ -74,6 +74,12 @@ BEGIN_TEST_SUITE("IOCore::FileResource")
 		}
 	}
 
+	FIXTURE_TEST("FileSource path getter")
+	{
+		FileResource file_resource(kTEST_FILE_PATH);
+		REQUIRE(file_resource.getFilePath() == kTEST_FILE_PATH);
+	}
+
 } // END_TEST_SUITE("IOCore::FileResource")
 
 // clang-format off

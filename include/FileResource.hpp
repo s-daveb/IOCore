@@ -33,6 +33,7 @@ class FileResource {
 
 	virtual ~FileResource() = default;
 
+	auto getFilePath() const noexcept -> const auto&  { return file_path; }
     protected:
 	std::filesystem::path file_path;
 };
