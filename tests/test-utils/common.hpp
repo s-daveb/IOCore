@@ -9,9 +9,9 @@
 
 #pragma once
 
-#include "IOCore/sys/debuginfo.hpp"
+#include "IOCore/sys/debuginfo.hpp"     // IWYU pragma: export
 
-#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_test_macros.hpp> // IWYU pragma: export
 
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #define BEGIN_TEST_SUITE(name)                                                  \
