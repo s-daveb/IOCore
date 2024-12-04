@@ -1,4 +1,4 @@
-/* Util.toml.test.cpp
+							   /* Util.toml.test.cpp
  * Copyright © 2024 Saul D. Beniquez
  * License: Mozilla Public License v. 2.0
  *
@@ -7,6 +7,7 @@
  * obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+#include <string>
 #include <unordered_map>
 
 #include "test-utils/common.hpp"
