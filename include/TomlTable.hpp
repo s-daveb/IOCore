@@ -67,11 +67,11 @@ struct TomlTable : public toml::table {
 		return TomlTable::get<T>();
 	}
 
-	auto operator[](const char* key) -> toml::node_view<node>
+	/*auto operator[](const char* key) -> toml::node_view<node>
 	{
-		auto value = toml::table::operator[](key);
-		return value;
-	}
+	        auto value = toml::table::operator[](key);
+	        return value;
+	}*/
 };
 
 // @{ Template specializattions, overrides, and stream operators
