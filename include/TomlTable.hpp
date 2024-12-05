@@ -48,7 +48,7 @@ struct TomlTable : public toml::table {
 	}
 
 	template<typename T>
-	auto get() const -> T
+	inline auto get() const -> T
 	{
 		using value_t = std::decay_t<T>;
 		value_t retval;
@@ -73,7 +73,7 @@ struct TomlTable : public toml::table {
 // @{ Template specializations for toml::table
 // Copy assignment template override for toml::table
 template<>
-inline auto TomlTable::operator=<toml::table>(const toml::table& tbl)
+inline auto TomlTable::operator= <toml::table>(const toml::table& tbl)
     -> TomlTable&
 {
 	toml::table::operator=(tbl);
@@ -81,7 +81,7 @@ inline auto TomlTable::operator=<toml::table>(const toml::table& tbl)
 }
 // Move assignment template override for toml::table
 template<>
-inline auto TomlTable::operator=<toml::table>(toml::table&& tbl) -> TomlTable&
+inline auto TomlTable::operator= <toml::table>(toml::table&& tbl) -> TomlTable&
 {
 	toml::table::operator=(std::move(tbl));
 	return *this;
