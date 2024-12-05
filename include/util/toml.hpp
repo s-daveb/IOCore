@@ -11,7 +11,9 @@
 
 #include <algorithm>
 
+#include <string>
 #include <toml++/toml.hpp>
+#include <type_traits>
 
 #include "../Exception.hpp"
 #include "macros.hpp"
