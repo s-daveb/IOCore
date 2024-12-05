@@ -13,6 +13,11 @@
 
 #include <toml++/toml.hpp>
 
+#include <toml++/impl/node_view.hpp>
+#include <toml++/impl/table.hpp>
+
+#include <type_traits>
+
 namespace IOCore {
 
 struct TomlTable : public toml::table {
@@ -62,10 +67,10 @@ struct TomlTable : public toml::table {
 		return TomlTable::get<T>();
 	}
 
-	auto operator[](const char* key) -> TomlTable
+	auto operator[](const char* key) -> toml::node_view<node>
 	{
 		auto value = toml::table::operator[](key);
-		return TomlTable(*value.as_table());
+		return value;
 	}
 };
 
