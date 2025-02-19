@@ -17,7 +17,7 @@ package_library_headers(IOCore
 )
 
 target_include_directories(IOCore PRIVATE ${IOCore_CMAKE_SOURCE_DIR}/include)
-target_include_directories(IOCore INTERFACE ${IOCore_INCLUDE_OUTPUT_DIR})
+target_include_directories(IOCore PUBLIC  ${IOCore_INCLUDE_OUTPUT_DIR})
 
 # Add additional link options for boost::stacktrace
 if (USE_BOOST_STACKTRACE)
