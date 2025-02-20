@@ -15,9 +15,6 @@ project(IOCore
 	DESCRIPTION "A framework for application management, file IO, etc"
 )
 
-use_ccache()
-check_and_set_linker()
-
 include(CPM)
 
 if( NOT CMAKE_BUILD_TYPE )
