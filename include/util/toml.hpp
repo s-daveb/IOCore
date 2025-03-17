@@ -128,8 +128,7 @@ extract_toml_field(const toml::table& tbl, const char* fieldName, TField& output
 	)                                                                       \
 	{                                                                       \
 		static_assert(                                                  \
-		    std::is_enum<ENUM_TYPE>::value,                             \
-		    #ENUM_TYPE "must be an enum!"                               \
+		    std::is_enum_v<ENUM_TYPE>, #ENUM_TYPE "must be an enum!"    \
 		);                                                              \
 		using pair_t = std::pair<const char*, ENUM_TYPE>;               \
 		static const pair_t _enum_to_string[] = {                       \
@@ -149,8 +148,7 @@ extract_toml_field(const toml::table& tbl, const char* fieldName, TField& output
 	)                                                                       \
 	{                                                                       \
 		static_assert(                                                  \
-		    std::is_enum<ENUM_TYPE>::value,                             \
-		    #ENUM_TYPE " must be an enum!"                              \
+		    std::is_enum_v<ENUM_TYPE>, #ENUM_TYPE " must be an enum!"   \
 		);                                                              \
 		using pair_t = std::pair<const char*, ENUM_TYPE>;               \
 		static const pair_t _enum_to_string[] = {                       \
