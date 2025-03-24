@@ -74,7 +74,7 @@ void inline assert_impl(
 
 	if (std::strlen(assert_reason) > 0) {
 		assert_buffer << std::endl
-			      << "\tassert_resion: " << assert_reason;
+			      << "\tassert_reason: " << assert_reason;
 	}
 	assert_buffer << std::flush;
 	throw Exception(assert_buffer.str());
