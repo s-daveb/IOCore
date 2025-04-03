@@ -55,11 +55,47 @@ auto extract_mangled_symbol(const std::string& input) -> std::string
 }
 } // namespace
 
+void extract_words(
+    std::stringstream& line_stream, std::vector<std::string>& wordlist,
+    unsigned short columns_to_print
+)
+{
+	std::string word;
+
+	while (line_stream >> word) {
+		if (columns_to_print != 0 && (word.find('<') != word.npos &&
+		                              word.find('>') != word.npos)) {
+			auto extracted_symbol = extract_mangled_symbol(word);
+			word = extracted_symbol;
+		}
+		wordlist.push_back(word);
+	}
+}
+
+void format_trace(
+    std::ostream& buffer, std::vector<std::string>& wordlist,
+    unsigned short columns_to_print
+)
+{
+	for (unsigned pos = 0; pos < columns_to_print; ++pos) {
+		auto word = wordlist[pos];
+		int status;
+
+		char* demangled_symbol =
+		    abi::__cxa_demangle(word.c_str(), nullptr, nullptr, &status);
+
+		if (status == 0) {
+			buffer << demangled_symbol << '\t';
+			std::free(demangled_symbol);
+		} else {
+			buffer << word << '\t';
+		}
+	}
+}
 // There are a lot of C and platform-specific hacks contained within
 // I am sorry. 🤡
-auto generate_stacktrace(unsigned short framesToRemove) -> std::string
+auto generate_stacktrace(unsigned short frames_to_remove) -> std::string
 {
-
 	std::stringstream buffer;
 
 #ifndef BOOST_STACKTRACER
@@ -76,26 +112,18 @@ auto generate_stacktrace(unsigned short framesToRemove) -> std::string
 		columns_to_print = 4;
 	}
 
-	if (framesToRemove == frames) {
-		framesToRemove = 0;
+	if (frames_to_remove == frames) {
+		frames_to_remove = 0;
 	}
 
-	for (i = framesToRemove; i < frames; ++i) {
+	for (i = frames_to_remove; i < frames; ++i) {
 		std::string word;
 		std::stringstream line_stream(strs[i]);
 		std::vector<std::string> wordlist;
 
 		// Create a list of words for this stack trace line
-		while (line_stream >> word) {
-			if (columns_to_print != 0 &&
-			    (word.find('<') != word.npos &&
-			     word.find('>') != word.npos)) {
-				auto extracted_symbol =
-				    extract_mangled_symbol(word);
-				word = extracted_symbol;
-			}
-			wordlist.push_back(word);
-		}
+		extract_words(line_stream, wordlist, columns_to_print);
+
 		// if columns_to_print is still 0, assign it to the list length
 		// It is only pre-configured for certain platforms, see above
 		if (!columns_to_print) {
@@ -103,21 +131,8 @@ auto generate_stacktrace(unsigned short framesToRemove) -> std::string
 		}
 		// Process the extracted words one at a time and format the
 		// stack trace string
-		for (unsigned pos = 0; pos < columns_to_print; ++pos) {
-			auto word = wordlist[pos];
-			int status;
+		format_trace(buffer, wordlist, columns_to_print);
 
-			char* demangled_symbol = abi::__cxa_demangle(
-			    word.c_str(), nullptr, nullptr, &status
-			);
-
-			if (status == 0) {
-				buffer << demangled_symbol << '\t';
-				std::free(demangled_symbol);
-			} else {
-				buffer << word << '\t';
-			}
-		}
 		buffer << std::endl;
 	}
 	std::free(strs);
