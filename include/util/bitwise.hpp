@@ -11,28 +11,27 @@
 
 #include <type_traits>
 
-
-struct Enum final
-{
+struct Enum final {
 	template<typename TEnum>
 	using enable_if_enum_t = std::enable_if_t<std::is_enum_v<TEnum>, bool>;
 
 	template<typename TEnum>
-	static constexpr auto ContainsFlag(
-	    const TEnum& flag_set, const TEnum& flag_to_check) -> enable_if_enum_t<TEnum>
+	static constexpr auto
+	Contains_Flag(const TEnum& flag_set, const TEnum& flag_to_check)
+	    -> enable_if_enum_t<TEnum>
 	{
 		return static_cast<std::underlying_type_t<TEnum>>(flag_set) &
-		       static_cast<std::underlying_type_t<TEnum>>(
-			   flag_to_check);
+		       static_cast<std::underlying_type_t<TEnum>>(flag_to_check);
 	}
 
 	template<typename TEnum>
-	static constexpr auto SetFlag(
-	    TEnum& flag_set, const TEnum& flag_to_set) -> enable_if_enum_t<TEnum>
+	static constexpr auto Set_Flag(TEnum& flag_set, const TEnum& flag_to_set)
+	    -> enable_if_enum_t<TEnum>
 	{
 		flag_set = static_cast<TEnum>(
 		    static_cast<std::underlying_type_t<TEnum>>(flag_set) |
-		    static_cast<std::underlying_type_t<TEnum>>(flag_to_set));
+		    static_cast<std::underlying_type_t<TEnum>>(flag_to_set)
+		);
 		return flag_set; // Returning the modified flag_set
 	}
 };
