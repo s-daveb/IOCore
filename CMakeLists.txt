@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.26)
 
-SET(IOCore_CMAKE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(IOCore_CMAKE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Additional paths to search for custom and third-party CMake modules
 list(PREPEND CMAKE_MODULE_PATH ${IOCore_CMAKE_SOURCE_DIR}/CMake)
@@ -9,16 +9,16 @@ include(BuildProperties)
 include(DefaultConfig)
 
 project(IOCore
-	VERSION 0.2.25
-	LANGUAGES C CXX
-	# HOMEPAGE_URL <URL>
-	DESCRIPTION "A framework for application management, file IO, etc"
+    VERSION 0.2.25
+    LANGUAGES C CXX
+    # HOMEPAGE_URL <URL>
+    DESCRIPTION "A framework for application management, file IO, etc"
 )
 
 include(CPM)
 
 if( NOT CMAKE_BUILD_TYPE )
-  SET( CMAKE_BUILD_TYPE Debug )
+    set( CMAKE_BUILD_TYPE Debug )
 endif()
 
 set(CMAKE_C_STANDARD 17)
@@ -28,12 +28,12 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_C_EXTENSIONS OFF)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-if (UNIX AND NOT(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux"))
-	option(USE_BOOST_STACKTRACE "Use Boost::stacktrace for stack traces" OFF)
-	option(USE_EXECINFO_STACKTRACE "Use BSD/UNIX execinfo for stack traces" ON)
+if(UNIX AND NOT(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux"))
+    option(USE_BOOST_STACKTRACE "Use Boost::stacktrace for stack traces" OFF)
+    option(USE_EXECINFO_STACKTRACE "Use BSD/UNIX execinfo for stack traces" ON)
 else()
-	option(USE_BOOST_STACKTRACE "Use Boost::stacktrace for stack traces" ON)
-	option(USE_EXECINFO_STACKTRACE "Use BSD/UNIX execinfo for stack traces" OFF)
+    option(USE_BOOST_STACKTRACE "Use Boost::stacktrace for stack traces" ON)
+    option(USE_EXECINFO_STACKTRACE "Use BSD/UNIX execinfo for stack traces" OFF)
 endif()
 
 # enable compile_commands.json generation for clangd
@@ -54,94 +54,94 @@ find_package(PkgConfig REQUIRED)
 #pkg_check_modules(SDL2_IMAGE REQUIRED IMPORTED_TARGET SDL2_image)
 #pkg_check_modules(SDL2_GFX REQUIRED IMPORTED_TARGET SDL2_gfx)
 
-if (USE_EXECINFO_STACKTRACE AND (NOT USE_BOOST_STACKTRACE))
-	CHECK_INCLUDE_FILE("execinfo.h" HAVE_EXECINFO_H)
+if(USE_EXECINFO_STACKTRACE AND (NOT USE_BOOST_STACKTRACE))
+    CHECK_INCLUDE_FILE("execinfo.h" HAVE_EXECINFO_H)
 
-	if (HAVE_EXECINFO_H)
-		add_definitions(-DHAVE_EXECINFO_H=1)
-	endif()
+    if(HAVE_EXECINFO_H)
+        add_definitions(-DHAVE_EXECINFO_H=1)
+    endif()
 
-	find_library(LIB_EXEC_INFO
-		NAMES execinfo  # Specify the library name without the 'lib' prefix or file extension
-		HINTS /usr/lib /usr/local/lib  # Optional hint for the library location
-	)
-	if (LIB_EXEC_INFO)
-		message(STATUS "Found libexecinfo: ${LIB_EXEC_INFO}")
-		set(STACKTRACE_DEP_LIBS ${LIB_EXEC_INFO})
-	endif()
+    find_library(LIB_EXEC_INFO
+        NAMES execinfo  # Specify the library name without the 'lib' prefix or file extension
+        HINTS /usr/lib /usr/local/lib  # Optional hint for the library location
+    )
+    if(LIB_EXEC_INFO)
+        message(STATUS "Found libexecinfo: ${LIB_EXEC_INFO}")
+        set(STACKTRACE_DEP_LIBS ${LIB_EXEC_INFO})
+    endif()
 elseif((NOT USE_EXECINFO_STACKTRACE) AND USE_BOOST_STACKTRACE)
-	set(Boost_USE_STATIC_LIBS OFF)
-	set(Boost_USE_STATIC_RUNTIME OFF)  # Do not require static C++ runtime
-	set(Boost_USE_MULTITHREADED ON)
-	find_package(Boost 1.82.0 COMPONENTS system filesystem REQUIRED)
+    set(Boost_USE_STATIC_LIBS OFF)
+    set(Boost_USE_STATIC_RUNTIME OFF)  # Do not require static C++ runtime
+    set(Boost_USE_MULTITHREADED ON)
+    find_package(Boost 1.82.0 COMPONENTS system filesystem REQUIRED)
 
-	if (Boost_FOUND)
-		add_definitions(-DBOOST_STACKTRACER=1)
-		add_definitions(-DBOOST_STACKTRACE_USE_ADDR2LINE=1)
+    if(Boost_FOUND)
+        add_definitions(-DBOOST_STACKTRACER=1)
+        add_definitions(-DBOOST_STACKTRACE_USE_ADDR2LINE=1)
 
-		include_directories(${Boost_INCLUDE_DIRS})
-	endif()
+        include_directories(${Boost_INCLUDE_DIRS})
+    endif()
 endif()
 
-CPMFindPackage(
-	NAME fmt
-	URL https://github.com/fmtlib/fmt/archive/refs/tags/10.2.1.zip
-	URL_HASH SHA256=d368f9c39a33a3aef800f5be372ec1df1c12ad57ada1f60adc62f24c0e348469
+cpmfindpackage(
+    NAME fmt
+    URL https://github.com/fmtlib/fmt/archive/refs/tags/10.2.1.zip
+    URL_HASH SHA256=d368f9c39a33a3aef800f5be372ec1df1c12ad57ada1f60adc62f24c0e348469
 )
-if (fmt_DIR)
-	list(APPEND CMAKE_MODULE_PATH ${fmt_DIR})
+if(fmt_DIR)
+    list(APPEND CMAKE_MODULE_PATH ${fmt_DIR})
 endif()
 
-CPMFindPackage(NAME tomlplusplus
-	URL https://github.com/marzer/tomlplusplus/archive/refs/tags/v3.4.0.zip
-	URL_HASH SHA256=ad2a4cd786e25305d802e7490ea65a2531195e5834bf6b4fa5a323421fd81f9b
+cpmfindpackage(NAME tomlplusplus
+    URL https://github.com/marzer/tomlplusplus/archive/refs/tags/v3.4.0.zip
+    URL_HASH SHA256=ad2a4cd786e25305d802e7490ea65a2531195e5834bf6b4fa5a323421fd81f9b
 )
-if (tomlplusplus_DIR)
-	list(APPEND CMAKE_MODULE_PATH ${tomlplusplus_DIR})
+if(tomlplusplus_DIR)
+    list(APPEND CMAKE_MODULE_PATH ${tomlplusplus_DIR})
 endif()
 
-CPMFindPackage(NAME nlohmann_json
-	URL https://github.com/nlohmann/json/archive/refs/tags/v3.11.3.zip
-	URL_HASH SHA256=04022b05d806eb5ff73023c280b68697d12b93e1b7267a0b22a1a39ec7578069
+cpmfindpackage(NAME nlohmann_json
+    URL https://github.com/nlohmann/json/archive/refs/tags/v3.11.3.zip
+    URL_HASH SHA256=04022b05d806eb5ff73023c280b68697d12b93e1b7267a0b22a1a39ec7578069
 )
-if (nlohmann_json_DIR)
-	list(APPEND CMAKE_MODULE_PATH ${nlohmann_json_DIR})
+if(nlohmann_json_DIR)
+    list(APPEND CMAKE_MODULE_PATH ${nlohmann_json_DIR})
 endif()
 
 
-if (BUILD_TESTING)
-	CPMFindPackage(NAME Catch2
-		GITHUB_REPOSITORY catchorg/Catch2
-		VERSION 3.4.0
-		OPTIONS
-			"CATCH_DEVELOPMENT_BUILD OFF"
-			"CATCH_BUILD_TESTING OFF"
-	)
-	CPMFindPackage(NAME FakeIt
-		GITHUB_REPOSITORY eranpeer/FakeIt
-		GIT_TAG 2.4.0
-		OPTIONS
- 	   		"BUILD_TESTINGING OFF"
-	)
+if(BUILD_TESTING)
+    cpmfindpackage(NAME Catch2
+        GITHUB_REPOSITORY catchorg/Catch2
+        VERSION 3.4.0
+        OPTIONS
+            "CATCH_DEVELOPMENT_BUILD OFF"
+            "CATCH_BUILD_TESTING OFF"
+    )
+    cpmfindpackage(NAME FakeIt
+        GITHUB_REPOSITORY eranpeer/FakeIt
+        GIT_TAG 2.4.0
+        OPTIONS
+            "BUILD_TESTINGING OFF"
+    )
 
-	if (TARGET Catch2)
-		set_target_properties(Catch2 PROPERTIES
-			CXX_STANDARD 20
-		)
-	endif()
-	if (TARGET Catch2WithMain)
-		set_target_properties(Catch2WithMain PROPERTIES
- 		    	CXX_STANDARD 20
-		)
-	endif()
+    if(TARGET Catch2)
+        set_target_properties(Catch2 PROPERTIES
+            CXX_STANDARD 20
+        )
+    endif()
+    if(TARGET Catch2WithMain)
+        set_target_properties(Catch2WithMain PROPERTIES
+                CXX_STANDARD 20
+        )
+    endif()
 
-	if (Catch2_ADDED)
-		list(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/extras)
-	else()
-		if (Catch2_DIR)
-			list(APPEND CMAKE_MODULE_PATH ${Catch2_DIR})
-		endif()
-	endif()
+    if(Catch2_ADDED)
+        list(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/extras)
+    else()
+        if(Catch2_DIR)
+            list(APPEND CMAKE_MODULE_PATH ${Catch2_DIR})
+        endif()
+    endif()
 endif()
 
 # Set output directories for build targets
@@ -151,8 +151,8 @@ set_artifact_dir(${CMAKE_BINARY_DIR}/out)
 add_subdirectory(src)
 
 if(BUILD_TESTING)
-	add_subdirectory(tests)
+    add_subdirectory(tests)
 endif()
 
 
-# vim: ts=4 sw=4 noet foldmethod=indent :
+# vim: ts=4 sw=4 et foldmethod=indent :
