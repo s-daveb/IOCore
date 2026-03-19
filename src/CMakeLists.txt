@@ -12,8 +12,9 @@ set_target_properties(IOCore PROPERTIES
 	POSITION_INDEPENDENT_CODE ON
 )
 
-package_library_headers(IOCore
-	${IOCore_CMAKE_SOURCE_DIR}/include
+publish_library_headers(
+	LIBRARY IOCore
+	HEADERS_DIR ${IOCore_CMAKE_SOURCE_DIR}/include
 )
 
 target_include_directories(IOCore PRIVATE ${IOCore_CMAKE_SOURCE_DIR}/include)
